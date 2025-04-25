@@ -27,7 +27,7 @@ class Importador {
   static importarUltimos30Dias(dia) {
     const dias = [];
     
-    for (let i = 0; i < 30; i++) {
+    for (let i = 30; i >= 0; i--) {
       const dataAtual = new Date(dia);
       dataAtual.setDate(dia.getDate() - i);
       
