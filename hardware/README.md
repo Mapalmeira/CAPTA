@@ -78,8 +78,10 @@ Esse código aplica essa correção aos valores medidos para que representem mai
 - Execute o script. Um gráfico será exibido mostrando a regressão linear. 
 - Os coeficientes `a` e `b` desejados devem aparecer na legenda na forma f(x) = ax + b
 - Insira esses coeficientes nos campos abaixo, presentes em `calbricao.ino`:
+
     double coeficiente_angular = ...; // Inclinação da regressão, o `a` obtido.
     double coeficiente_linear  = ...; // Deslocamento da regressão, o `b` obtido.
+	
 - Repita o passo 2 de calibração e confira se a precisão está conforme o esperado.
 
 OBS: espera-se que o circuito, mesmo sem correção, seja capaz de realizar mensurações boas. Se os coeficientes obtidos nesta etapa forem muito altos ou caso os pontos do gráfico de regressão pareçam muito espalhados, provavelmente um erro foi cometido nas etapas anteriores à calibração. 
