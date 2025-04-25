@@ -67,7 +67,7 @@ function ConsumoDiario() {
     const consumoWh = ProcessadorDeDados.calcularWh(dadosDia);
     const consumoKWh = consumoWh / 1000;
     consumoTotalkWh += consumoKWh;
-    return [dia, consumoKWh.toFixed(3)];
+    return [dia, consumoKWh];
   });
 
   console.log("[Main] ConsumoDiario: Criando nova aba...");
@@ -75,7 +75,9 @@ function ConsumoDiario() {
   abaConsumo.ajustarLarguraColunas(3, 300);
   abaConsumo.limpar();
 
-  abaConsumo.adicionarDadoNaCelula("E3", `${consumoTotalkWh.toFixed(2)} kWh`);
+  abaConsumo.adicionarDadoNaCelula("E3", `${consumoTotalkWh.toFixed(3)} kWh`);
   abaConsumo.adicionarDadosNoRange(`A1:B${dadosProcessados.length}`, dadosProcessados);
+  abaConsumo.obterRange(`B1:B${dadosProcessados.length}`).setNumberFormat("0.00");
+
   GraficoHandler.criarGraficoConsumoDiario(abaConsumo);
 }

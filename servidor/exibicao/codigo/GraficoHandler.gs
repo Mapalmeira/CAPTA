@@ -76,7 +76,7 @@ class GraficoHandler {
       .setOption("vAxis", {
         title: "Consumo (kWh)",
         viewWindow: { min: 0, max: maxArredondado },
-        gridlines: { count: maxArredondado / 5 }
+        gridlines: { count: maxArredondado / 5 + 1}
       })
       .setOption("width", largura)
       .setOption("height", altura)
