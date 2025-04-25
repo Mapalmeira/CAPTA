@@ -57,7 +57,7 @@ function ConsumoDiario() {
   const voltagem = abaPrincipal.obterVoltagem();
 
   console.log("[Main] ConsumoDiario: Obtendo dados...");
-  const dados = Importador.importarPorMes(dia);
+  const dados = Importador.importarUltimos30Dias(dia);
 
   let consumoTotalkWh = 0;
   const dadosProcessados = dados.map(([dia, dadosDia]) => {
