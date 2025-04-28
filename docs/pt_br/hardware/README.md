@@ -44,7 +44,7 @@ Como o ESP32 realiza leituras de **tensão** (entre 0 e 3.3 V), a corrente preci
 
 ## Calibração
 
-Este seção explica os códigos auxiliares presentes no repositório, essenciais para a calibração do sensor:
+Este seção explica os códigos auxiliares presentes em `hardware/`, essenciais para a calibração do sensor:
 
 ### 1. `offset.ino`
 
@@ -86,6 +86,8 @@ Esse código aplica essa correção aos valores medidos para que representem mai
 
 OBS: espera-se que o circuito, mesmo sem correção, seja capaz de realizar mensurações boas. Se os coeficientes obtidos nesta etapa forem muito altos ou caso os pontos do gráfico de regressão pareçam muito espalhados, provavelmente um erro foi cometido nas etapas anteriores à calibração. 
 
+---
+
 ## Limitações da Medição
 
 Apesar da simplicidade e baixo custo, este tipo de medição apresenta limitações:
@@ -102,14 +104,13 @@ O conversor analógico-digital (ADC) do ESP32 tem limitações de precisão, pod
 
 ---
 
-
 # Referência
 
 - [OpenEnergyMonitor – Electricity Monitoring](https://docs.openenergymonitor.org/electricity-monitoring/index.html)
 
 ---
 
-# Conteúdo da Pasta
+# Conteúdo de `hardware/`
 
 - `offset.ino` – Código para medir o offset do circuito.
 - `calibracao.ino` – Código para calibrar a medição de corrente.

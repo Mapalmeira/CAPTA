@@ -40,28 +40,42 @@ Um botão físico permite interações simples (como enviar um comando de deslig
 
 ---
 
-## Configurações do Sistema
+## Instalação
 
-Antes de utilizar o sistema, configure no arquivo `ESP32_Sheets.ino`:
+### Configuração do Sistema
 
-- **Credenciais Wi-Fi**: `SSID` e `PASSWORD`.
-- **URL do Web App**: `ENDERECO_SHEETS`.
-- **Token de autenticação**: `TOKEN`.
+Antes de utilizar o sistema, configure o arquivo `envio_esp32.ino`, localizado em `envio/`:
 
-Também podem ser configurados:
+- **Credenciais Wi-Fi**: defina `SSID` e `PASSWORD`.
+- **URL do Web App**: configure `ENDERECO_SHEETS`.
+- **Token de autenticação**: ajuste o valor de `TOKEN`.
 
-- Se haverá reinicialização periódica (`REINICIALIZACAO_PERIODICA`).
+Também é possível configurar:
+
+- Reinicialização periódica (`REINICIALIZACAO_PERIODICA`).
 - Quantidade de envios por vez (`ENVIOS_POR_VEZ`).
 - Delay adicional entre medições (`DELAY_ADICIONAL`).
-- Se haverá progressivo em desconexões (`DELAY_PROGRESSIVO`).
-- Definição das casas decimais enviadas (`CASAS_DECIMAIS`).
+- Delay progressivo em caso de desconexões (`DELAY_PROGRESSIVO`).
+- Definição das casas decimais enviadas (`CASAS_DECIMAIS`).  
+  *(Exemplo: {-1, 2} significa enviar um número inteiro e outro decimal com 2 casas decimais.)*
 
-E, para o medidor:
+Para o funcionamento correto do medidor, é necessário definir:
 
 - Resistência do burden resistor (`RESISTENCIA`).
 - Número de voltas do transformador de corrente (`VOLTAS_TRANSFORMADOR`).
 - Offset de tensão (`TENSAO_OFFSET`).
 - Correções lineares (`COEFICIENTE_ANGULAR` e `COEFICIENTE_LINEAR`).
+
+Esses valores podem ser obtidos a partir do procedimento de calibração descrito em `hardware/`.
+
+### Instalação
+
+1. Adicione o conteúdo de `envio/` a uma pasta "envio_esp32".
+2. Abra a pasta "envio_esp32" criada anteriormente como um projeto no Arduino IDE.
+3. Configure `envio_esp32.ino` conforme descrito no tópico anterior.
+4. Conecte o ESP32 ao computador.
+5. Compile e faça o upload para o ESP32.
+6. Verifique o Serial Monitor para acompanhar o status do dispositivo.
 
 ---
 
