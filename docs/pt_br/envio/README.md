@@ -34,13 +34,13 @@ O sistema adapta sua operação automaticamente:
 
 Um botão físico permite interações simples (como enviar um comando de desligamento), e um LED integrado indica o modo atual de operação.
 
-- LED piscando a 1 hz → Envio normal.
-- LED piscando 0.5 hz → Problema de conexão detectado.
-- LED piscando a 2 hz → Envio em pendência.
+- LED piscando a 1 Hz → Envio normal.
+- LED piscando 0.5 Hz → Problema de conexão detectado.
+- LED piscando a 2 Hz → Envio em pendência.
 
 ---
 
-## Instalação
+## Passos de instalação
 
 ### Configuração do Sistema
 
@@ -54,9 +54,9 @@ Também é possível configurar:
 
 - Reinicialização periódica (`REINICIALIZACAO_PERIODICA`).
 - Quantidade de envios por vez (`ENVIOS_POR_VEZ`).
-- Delay adicional entre medições (`DELAY_ADICIONAL`).
-- Delay progressivo em caso de desconexões (`DELAY_PROGRESSIVO`).
-- Definição das casas decimais enviadas (`CASAS_DECIMAIS`).  
+- Atraso adicional entre medições (`DELAY_ADICIONAL`).
+- Atraso progressivo em caso de desconexões (`DELAY_PROGRESSIVO`).
+- Definição das casas decimais enviadas (`CASAS_DECIMAIS`).
   *(Exemplo: {-1, 2} significa enviar um número inteiro e outro decimal com 2 casas decimais.)*
 
 Para o funcionamento correto do medidor, é necessário definir:

@@ -10,20 +10,20 @@ Este diretório contém os arquivos e instruções para a montagem do sistema de
 
 O circuito de leitura utiliza o sensor SCT-013-000 com os seguintes componentes:
 
-- 1 × Sensor de corrente SCT-013-000  
-- 2 × Resistores de 10 kΩ  
-- 1 × Resistor de 75 Ω (burden resistor)  
+- 1 × Sensor de corrente SCT-013-000
+- 2 × Resistores de 10 kΩ
+- 1 × Resistor de 75 Ω (burden resistor)
 - 1 × Capacitor de 10 µF
 
 ### Observações
 
 O valor de 75 Ω utilizado como burden resistor foi escolhido levando em consideração uma corrente máxima de 32 A, valor típico para disjuntores gerais em residências brasileiras. Essa escolha garante que a tensão de saída do sensor, mesmo em condições de corrente elevada, permaneça dentro da faixa de operação segura do ADC interno do ESP32, que aceita até 3,3 V. Valores de resistência maiores podem ser utilizados sem riscos, embora alterem a sensibilidade da leitura. Já valores menores **não devem ser usados**, pois podem gerar tensões acima do limite suportado pelo microcontrolador, comprometendo a integridade do sistema.
 
-A montagem do circuito segue o esquema proposto pelo projeto OpenEnergyMonitor, uma referência consolidada em medição de energia com microcontroladores.  
+A montagem do circuito segue o esquema proposto pelo projeto OpenEnergyMonitor, uma referência consolidada em medição de energia com microcontroladores.
 
 Imagens ilustrativas e diagramas de ligação estão disponíveis na pasta `imagens/`, sendo a leitura analógica do sinal é feita no pino **36** do ESP32 (identificado como `SP` nos esquemas).
 
-O guia de montagem pode ser consultado em:  
+O guia de montagem pode ser consultado em:
 [https://docs.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino.html](https://docs.openenergymonitor.org/electricity-monitoring/ct-sensors/interface-with-arduino.html)
 
 ---
@@ -34,17 +34,17 @@ O SCT-013-000 é um transformador de corrente com razão de espiras 2000:1. Ele 
 
 Como o ESP32 realiza leituras de **tensão** (entre 0 e 3.3 V), a corrente precisa ser convertida em uma faixa de voltagem compatível. Isso é feito em duas etapas:
 
-1. **Conversão de corrente para tensão:**  
+1. **Conversão de corrente para tensão:**
    A corrente de saída do sensor passa por um resistor de carga (burden resistor). A tensão gerada oscila entre aproximadamente -I/2000 × √2 × R e +I/2000 × √2 × R, onde R é o valor do resistor em ohms escolhido cautelosamente para manter a amplitude entre -3.3/2 e 3.3/2.
 
-2. **Offset para leitura unipolar:**  
+2. **Offset para leitura unipolar:**
    Como o ESP32 não lê tensões negativas, é adicionado um **offset de 1,65 V** ao sinal, para que a tensão fique centrada entre 0 e 3,3 V.
 
 ---
 
 ## Calibração
 
-Este seção explica os códigos auxiliares presentes em `hardware/`, essenciais para a calibração do sensor:
+Esta seção explica os códigos auxiliares presentes em `hardware/`, essenciais para a calibração do sensor:
 
 ### 1. `offset.ino`
 
@@ -75,16 +75,18 @@ Esse código aplica essa correção aos valores medidos para que representem mai
 
 **Passos:**
 - Abra o código em um editor de texto de sua preferência e substitua a lista `dados` por uma lista de pares (valor_medido, valor_esperado)
-- Execute o script. Um gráfico será exibido mostrando a regressão linear. 
+- Execute o script. Um gráfico será exibido mostrando a regressão linear.
 - Os coeficientes `a` e `b` desejados devem aparecer na legenda na forma f(x) = ax + b
 - Insira esses coeficientes nos campos abaixo, presentes em `calbricao.ino`:
 
     double coeficiente_angular = ...; // Inclinação da regressão, o `a` obtido.
     double coeficiente_linear  = ...; // Deslocamento da regressão, o `b` obtido.
-	
+
 - Repita o passo 2 de calibração e confira se a precisão está conforme o esperado.
 
-OBS: espera-se que o circuito, mesmo sem correção, seja capaz de realizar mensurações boas. Se os coeficientes obtidos nesta etapa forem muito altos ou caso os pontos do gráfico de regressão pareçam muito espalhados, provavelmente um erro foi cometido nas etapas anteriores à calibração. 
+**Observação**:
+Espera-se que o circuito, mesmo sem correção, seja capaz de realizar mensurações boas.
+Se os coeficientes obtidos nesta etapa forem muito altos ou caso os pontos do gráfico de regressão pareçam muito espalhados, provavelmente um erro foi cometido nas etapas anteriores à calibração.
 
 ---
 

@@ -41,13 +41,13 @@ Modos de visualização disponíveis:
 
 Para que o sistema funcione corretamente, todos os elementos devem estar reunidos em uma **mesma pasta no Google Drive** (o nome da pasta é irrelevante):
 
-- **Pasta `dadosPart/`**  
+- **Pasta `dadosPart/`**
   Planilhas diárias contendo os dados enviados via POST.
 
-- **Projeto de Apps Script de Recebimento**  
+- **Projeto de Apps Script de Recebimento**
   Implantado como Web App, responsável por processar as requisições e armazenar os dados.
 
-- **Planilha de Exibição**  
+- **Planilha de Exibição**
   Contém os scripts de geração de gráficos a partir dos dados armazenados.
 
 ---
