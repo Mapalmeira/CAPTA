@@ -66,7 +66,7 @@ Para o funcionamento correto do medidor, é necessário definir:
 - Offset de tensão (`TENSAO_OFFSET`).
 - Correções lineares (`COEFICIENTE_ANGULAR` e `COEFICIENTE_LINEAR`).
 
-Esses valores podem ser obtidos a partir do procedimento de calibração descrito em `hardware/`.
+Esses valores podem ser obtidos a partir do procedimento de calibração descrito em [`hardware/`](./hardware/README.md).
 
 ### Instalação
 
@@ -83,6 +83,16 @@ Esses valores podem ser obtidos a partir do procedimento de calibração descrit
 
 - O sistema implementa verificação de conexão com o Web App e reagenda envios em caso de falha.
 - A biblioteca WiFiClientSecure é utilizada em modo inseguro (`client.setInsecure()`), sem verificação de certificados, pois o Apps Script do Google Drive usa certificados dinâmicos difíceis de validar em tempo de execução.
+
+---
+
+## Próximos Passos
+
+Acesse os READMEs específicos para detalhes aprofundados:
+
+- [`hardware/`](./hardware/README.md): sensores, módulos, lógica de medição.
+- [`envio/`](./envio/README.md): lógica do firmware do ESP32 e envio dos dados.
+- [`servidor/`](./servidor/README.md): Apps Script, salvamento no Drive e planilha de visualização.
 
 ---
 

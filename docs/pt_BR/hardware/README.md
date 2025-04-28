@@ -4,8 +4,6 @@ Este diretório contém os arquivos e instruções para a montagem do sistema de
 
 ---
 
-# Circuito do sensor
-
 ## Componentes do Circuito do Sensor
 
 O circuito de leitura utiliza o sensor SCT-013-000 com os seguintes componentes:
@@ -106,13 +104,23 @@ O conversor analógico-digital (ADC) do ESP32 tem limitações de precisão, pod
 
 ---
 
-# Referência
+## Referência
 
 - [OpenEnergyMonitor – Electricity Monitoring](https://docs.openenergymonitor.org/electricity-monitoring/index.html)
 
 ---
 
-# Conteúdo de `hardware/`
+## Próximos Passos
+
+Acesse os READMEs específicos para detalhes aprofundados:
+
+- [`hardware/`](./hardware/README.md): sensores, módulos, lógica de medição.
+- [`envio/`](./envio/README.md): lógica do firmware do ESP32 e envio dos dados.
+- [`servidor/`](./servidor/README.md): Apps Script, salvamento no Drive e planilha de visualização.
+
+---
+
+## Conteúdo de `hardware/`
 
 - `offset.ino` – Código para medir o offset do circuito.
 - `calibracao.ino` – Código para calibrar a medição de corrente.

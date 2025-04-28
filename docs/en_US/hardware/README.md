@@ -4,8 +4,6 @@ This directory contains the files and instructions for assembling the current me
 
 ---
 
-# Sensor Circuit
-
 ## Sensor Circuit Components
 
 The reading circuit uses the SCT-013-000 current sensor with the following components:
@@ -109,13 +107,23 @@ While acceptable for general use, the system can be improved by adding an extern
 
 ---
 
-# Reference
+## Reference
 
 - [OpenEnergyMonitor – Electricity Monitoring](https://docs.openenergymonitor.org/electricity-monitoring/index.html)
 
 ---
 
-# `hardware/` Contents
+## Next Steps
+
+Access the specific READMEs for detailed information:
+
+- [`hardware/`](./hardware/README.md): sensors, modules, and measurement logic.
+- [`envio/`](./envio/README.md): ESP32 firmware logic and data transmission.
+- [`servidor/`](./servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
+
+---
+
+## `hardware/` Contents
 
 - `offset.ino` – Code to measure the circuit’s offset.
 - `calibracao.ino` – Code to calibrate current measurement.

@@ -66,7 +66,7 @@ For proper meter operation, you must also set:
 - Voltage offset (`TENSAO_OFFSET`).
 - Linear correction coefficients (`COEFICIENTE_ANGULAR` and `COEFICIENTE_LINEAR`).
 
-These values can be obtained through the calibration procedure described in `hardware/`.
+These values can be obtained through the calibration procedure described in [`hardware/`](./hardware/README.md).
 
 ### Installation Steps
 
@@ -83,6 +83,16 @@ These values can be obtained through the calibration procedure described in `har
 
 - The system includes connection verification with the Web App and reschedules transmissions in case of failures.
 - The WiFiClientSecure library is used in insecure mode (`client.setInsecure()`), without certificate validation, because Google Drive's Apps Script uses dynamic certificates that are hard to validate at runtime.
+
+---
+
+## Next Steps
+
+Access the specific READMEs for detailed information:
+
+- [`hardware/`](./hardware/README.md): sensors, modules, and measurement logic.
+- [`envio/`](./envio/README.md): ESP32 firmware logic and data transmission.
+- [`servidor/`](./servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
 
 ---
 
