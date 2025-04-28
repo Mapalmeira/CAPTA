@@ -117,9 +117,9 @@ While acceptable for general use, the system can be improved by adding an extern
 
 Access the specific READMEs for detailed information:
 
-- [`hardware/`](./hardware/README.md): sensors, modules, and measurement logic.
-- [`envio/`](./envio/README.md): ESP32 firmware logic and data transmission.
-- [`servidor/`](./servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
+- [`hardware/`](../hardware/README.md): sensors, modules, and measurement logic.
+- [`envio/`](../envio/README.md): ESP32 firmware logic and data transmission.
+- [`servidor/`](../servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
 
 ---
 

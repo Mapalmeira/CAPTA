@@ -122,9 +122,9 @@ A estrutura correta do Drive é essencial para a geração correta dos gráficos
 
 Acesse os READMEs específicos para detalhes aprofundados:
 
-- [`hardware/`](./hardware/README.md): sensores, módulos, lógica de medição.
-- [`envio/`](./envio/README.md): lógica do firmware do ESP32 e envio dos dados.
-- [`servidor/`](./servidor/README.md): Apps Script, salvamento no Drive e planilha de visualização.
+- [`hardware/`](../hardware/README.md): sensores, módulos, lógica de medição.
+- [`envio/`](../envio/README.md): lógica do firmware do ESP32 e envio dos dados.
+- [`servidor/`](../servidor/README.md): Apps Script, salvamento no Drive e planilha de visualização.
 
 ---
 

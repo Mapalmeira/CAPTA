@@ -90,9 +90,9 @@ These values can be obtained through the calibration procedure described in [`ha
 
 Access the specific READMEs for detailed information:
 
-- [`hardware/`](./hardware/README.md): sensors, modules, and measurement logic.
-- [`envio/`](./envio/README.md): ESP32 firmware logic and data transmission.
-- [`servidor/`](./servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
+- [`hardware/`](../hardware/README.md): sensors, modules, and measurement logic.
+- [`envio/`](../envio/README.md): ESP32 firmware logic and data transmission.
+- [`servidor/`](../servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
 
 ---
 
