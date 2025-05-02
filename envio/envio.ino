@@ -19,9 +19,9 @@
 // Configurações do sistema
 constexpr const char* SSID = "";
 constexpr const char* PASSWORD = "";
-constexpr const char* ENDERECO_SHEETS = "";
+constexpr const char* ENDERECO_APPSCRIPT = "";
 constexpr const char* TOKEN = "";
-constexpr bool ATIVAR_LOGS = true;  // ainda não implementado
+constexpr bool ATIVAR_LOGS = true;  // possibilidade de ser implementado no futuro
 constexpr bool REINICIALIZACAO_PERIODICA = true;
 constexpr int ENVIOS_POR_VEZ = 10;
 constexpr int DELAY_ADICIONAL = 7500;
@@ -44,7 +44,7 @@ auto funcMedicao = [&medidor]() {
 Sistema sistema(
     SSID,
     PASSWORD,
-    ENDERECO_SHEETS,
+    ENDERECO_APPSCRIPT,
     TOKEN,
     funcMedicao,
     CASAS_DECIMAIS // casas decimais para timestamp e amperagem. -1 significa inteiro.

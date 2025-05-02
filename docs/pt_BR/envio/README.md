@@ -42,13 +42,22 @@ Um botão físico permite interações simples (como enviar um comando de deslig
 
 ## Passos de instalação
 
+### Instalação
+
+1. Baixe a pasta `envio/`.
+2. Abra `envio/` como um projeto no Arduino IDE.
+3. Configure os parâmetros de `envio.ino`, conforme descrito na seção **Configuração do Sistema**.
+4. Conecte o ESP32 ao computador.
+5. Compile e faça o upload para o ESP32.
+6. Verifique o Serial Monitor para acompanhar o status do dispositivo.
+
 ### Configuração do Sistema
 
-Antes de utilizar o sistema, configure o arquivo `envio_esp32.ino`, localizado em `envio/`:
+Antes de utilizar o sistema, configure o arquivo `envio.ino`, localizado em `envio/`:
 
 - **Credenciais Wi-Fi**: defina `SSID` e `PASSWORD`.
-- **URL do Web App**: configure `ENDERECO_SHEETS`.
-- **Token de autenticação**: ajuste o valor de `TOKEN`.
+- **URL do Web App**: configure `ENDERECO_APPSCRIPT`, conforme obtido em [`servidor/`](../servidor/README.md).
+- **Token de autenticação**: ajuste o valor de `TOKEN` comum entre o sistema de envio e servidor web app.
 
 Também é possível configurar:
 
@@ -68,14 +77,6 @@ Para o funcionamento correto do medidor, é necessário definir:
 
 Esses valores podem ser obtidos a partir do procedimento de calibração descrito em [`hardware/`](./hardware/README.md).
 
-### Instalação
-
-1. Adicione o conteúdo de `envio/` a uma pasta "envio_esp32".
-2. Abra a pasta "envio_esp32" criada anteriormente como um projeto no Arduino IDE.
-3. Configure `envio_esp32.ino` conforme descrito no tópico anterior.
-4. Conecte o ESP32 ao computador.
-5. Compile e faça o upload para o ESP32.
-6. Verifique o Serial Monitor para acompanhar o status do dispositivo.
 
 ---
 

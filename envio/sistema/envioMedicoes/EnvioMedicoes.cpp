@@ -1,10 +1,10 @@
 #include "EnvioMedicoes.h"
 
 // Construtor
-EnvioMedicoes::EnvioMedicoes(String url, Logador& log, String token,
+EnvioMedicoes::EnvioMedicoes(String enderecoAppscript, Logador& log, String token,
                              std::function<Medicao(void)> funcaoMedicao,
                              std::vector<int> casasDecimais)
-    : logador(log), requisitor(log, url, token), funcaoMedicao(funcaoMedicao), casasDecimais(casasDecimais)
+    : logador(log), requisitor(log, enderecoAppscript, token), funcaoMedicao(funcaoMedicao), casasDecimais(casasDecimais)
 {}
 
 // Formata uma única medição para string no formato correto

@@ -22,7 +22,7 @@ private:
     String montarPacoteLinhas(int linhas);
     
 public:
-    EnvioMedicoes(String url, Logador& log, String token,
+    EnvioMedicoes(String enderecoAppscript, Logador& log, String token,
               std::function<Medicao(void)> funcaoMedicao,
               std::vector<int> casasDecimais);
 

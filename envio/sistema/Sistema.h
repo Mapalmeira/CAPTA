@@ -14,7 +14,7 @@ private:
     // conexão
     String SSID;
     String senha;
-    String enderecoPlanilha;
+    String enderecoAppscript;
 
     // modo de operação
     String modo;

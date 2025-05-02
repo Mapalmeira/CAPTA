@@ -42,13 +42,22 @@ A physical button allows simple interactions (such as sending a shutdown command
 
 ## Installation
 
+### Installation Steps
+
+1. Download the `envio/` folder.
+2. Open `envio/` as a project in Arduino IDE.
+3. Configure the parameters in `envio.ino`, as described in the **System Configuration** section.
+4. Connect the ESP32 to your computer.
+5. Compile and upload the code to the ESP32.
+6. Check the Serial Monitor to track the device status.
+
 ### System Configuration
 
-Before using the system, configure the `envio_esp32.ino` file located in `envio/`:
+Before using the system, configure the `envio.ino` file located in `envio/`:
 
 - **Wi-Fi Credentials**: set `SSID` and `PASSWORD`.
-- **Web App URL**: configure `ENDERECO_SHEETS`.
-- **Authentication Token**: adjust the value of `TOKEN`.
+- **Web App URL**: set `ENDERECO_APPSCRIPT`, as obtained in [`server/`](../server/README.md).
+- **Authentication Token**: set the `TOKEN` value, which must be identical on both the ESP32 and the web application to ensure secure and authorized communication.
 
 You can also configure:
 
@@ -56,26 +65,17 @@ You can also configure:
 - Number of transmissions per batch (`ENVIOS_POR_VEZ`).
 - Additional delay between measurements (`DELAY_ADICIONAL`).
 - Progressive delay on disconnections (`DELAY_PROGRESSIVO`).
-- Decimal places definition for transmissions (`CASAS_DECIMAIS`).
+- Decimal places to send (`CASAS_DECIMAIS`).
   *(Example: {-1, 2} means sending an integer and a decimal with 2 decimal places.)*
 
-For proper meter operation, you must also set:
+For proper operation of the meter, you must also set:
 
-- Burden resistor resistance (`RESISTENCIA`).
-- Number of turns of the current transformer (`VOLTAS_TRANSFORMADOR`).
+- Burden resistor value (`RESISTENCIA`).
+- Number of turns in the current transformer (`VOLTAS_TRANSFORMADOR`).
 - Voltage offset (`TENSAO_OFFSET`).
 - Linear correction coefficients (`COEFICIENTE_ANGULAR` and `COEFICIENTE_LINEAR`).
 
-These values can be obtained through the calibration procedure described in [`hardware/`](./hardware/README.md).
-
-### Installation Steps
-
-1. Add the contents of `envio/` to a folder named "envio_esp32".
-2. Open the "envio_esp32" folder as a project in the Arduino IDE.
-3. Configure `envio_esp32.ino` as described in the previous section.
-4. Connect the ESP32 to your computer.
-5. Compile and upload the code to the ESP32.
-6. Use the Serial Monitor to track the device status.
+These values should be obtained through the calibration procedure described in [`hardware/`](../hardware/README.md).
 
 ---
 

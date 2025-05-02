@@ -6,7 +6,7 @@ Sistema::Sistema(String ssid, String senha, String endereco, String token,
                  std::vector<int> casasDecimais)
     : SSID(ssid),
       senha(senha),
-      enderecoPlanilha(endereco),
+      enderecoAppscript(endereco),
       conexao(ssid, senha),
       envioMedicoes(endereco, logador, token, funcaoMedicao, casasDecimais),
       interfaceFisica(),
