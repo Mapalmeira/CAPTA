@@ -54,7 +54,7 @@ For the system to function correctly, all elements must be gathered in a **singl
 
 ## Step-by-Step: Deploying the Web App
 
-1. Access [Google Apps Script](https://script.google.com/) with a dedicated system account.
+1. Access [Google Apps Script](https://script.google.com/) with a dedicated account.
 2. Create a new project.
 3. Add each `.gs` file from the `servidor/recebimento/` folder:
    - Click `+` → `Script`.
@@ -64,13 +64,15 @@ For the system to function correctly, all elements must be gathered in a **singl
 6. Configure:
    - **Execute as**: your dedicated account.
    - **Who has access**: anyone, even anonymous users.
-7. Copy the generated deployment link and use it in the ESP32 code.
-8. Grant the requested permissions (Drive and Sheets access).
+7. Grant the requested permissions (Google Drive and Google Sheets access).
+8. Copy the generated deployment link and paste it into the `ENDERECO_APPSCRIPT` field in the ESP32 firmware.
+9. Set up a shared security token between the Web App and the ESP32:
+   - In `Entrada.gs`, assign the token to `TOKEN_SECRETO`.
+   - In the ESP32 firmware, use the same token value in the `TOKEN` field.
 
 ### Notes
 
 - The `dadosPart/` folder must be manually created in the same directory as the script.
-- The security token must be configured both in the App Script and on the ESP32.
 - Requests without a token or with an incorrect token are automatically ignored.
 
 ---

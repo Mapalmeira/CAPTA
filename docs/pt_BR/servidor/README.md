@@ -64,13 +64,16 @@ Para que o sistema funcione corretamente, todos os elementos devem estar reunido
 6. Configure:
    - **Executar como**: sua conta dedicada.
    - **Quem tem acesso**: qualquer pessoa, mesmo anônima.
-7. Copie o link gerado da implantação e utilize no código do ESP32.
-8. Conceda as permissões solicitadas (acesso a Drive e Sheets).
+7. Conceda as permissões solicitadas (acesso ao Google Drive e Google Sheets).
+8. Copie o link gerado da implantação e utilize no campo `ENDERECO_APPSCRIPT` no código do ESP32.
+9. Estabeleça um token de segurança compartilhado entre o Web App e o ESP32:
+   - Defina o token em `Entrada.gs` no campo `TOKEN_SECRETO`.
+   - Use o mesmo valor no campo `TOKEN` no firmware do ESP32.
+
 
 ### Observações
 
 - A pasta `dadosPart/` deve ser criada manualmente no mesmo diretório do script.
-- O token de segurança deve ser configurado tanto no App Script quanto no ESP32.
 - As requisições sem token ou com token incorreto são automaticamente ignoradas.
 
 ---
