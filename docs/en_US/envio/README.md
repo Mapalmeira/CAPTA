@@ -56,7 +56,7 @@ A physical button allows simple interactions (such as sending a shutdown command
 Before using the system, configure the `envio.ino` file located in `envio/`:
 
 - **Wi-Fi Credentials**: set `SSID` and `PASSWORD`.
-- **Web App URL**: set `ENDERECO_APPSCRIPT`, as obtained in [`server/`](../server/README.md).
+- **Web App URL**: set `ENDERECO_APPSCRIPT`, as obtained in [`servidor/`](../servidor/README.md).
 - **Authentication Token**: set the `TOKEN` value, which must be identical on both the ESP32 and the web application to ensure secure and authorized communication.
 
 You can also configure:
