@@ -15,7 +15,9 @@ O circuito de leitura utiliza o sensor SCT-013-000 com os seguintes componentes:
 
 ### Observações
 
-O valor de 75 Ω utilizado como burden resistor foi escolhido levando em consideração uma corrente máxima de 32 A, valor típico para disjuntores gerais em residências brasileiras. Essa escolha garante que a tensão de saída do sensor, mesmo em condições de corrente elevada, permaneça dentro da faixa de operação segura do ADC interno do ESP32, que aceita até 3,3 V. Valores de resistência maiores podem ser utilizados sem riscos, embora alterem a sensibilidade da leitura. Já valores menores **não devem ser usados**, pois podem gerar tensões acima do limite suportado pelo microcontrolador, comprometendo a integridade do sistema.
+O valor de 75 Ω utilizado como burden resistor foi escolhido levando em consideração uma corrente máxima de 32 A, valor típico para disjuntores gerais em residências brasileiras. Essa escolha garante que a tensão de saída do sensor, mesmo em condições de corrente elevada, permaneça dentro da faixa de operação segura do ADC interno do ESP32, que aceita até 3,3 V.
+
+Valores de resistência menores podem ser utilizados sem riscos, embora alterem a sensibilidade da leitura. Já valores maiores **não devem ser usados**, pois podem gerar tensões acima do limite suportado pelo microcontrolador, comprometendo a integridade do sistema.
 
 A montagem do circuito segue o esquema proposto pelo projeto OpenEnergyMonitor, uma referência consolidada em medição de energia com microcontroladores.
 

@@ -15,7 +15,9 @@ The reading circuit uses the SCT-013-000 current sensor with the following compo
 
 ### Notes
 
-The 75 Ω burden resistor was chosen considering a maximum current of 32 A, a typical value for main breakers in Brazilian households. This choice ensures that the sensor’s output voltage, even under high current conditions, remains within the safe operating range of the ESP32’s internal ADC, which supports up to 3.3 V. Higher resistor values can be used safely, although they alter the measurement sensitivity. Lower values **must not be used**, as they can generate voltages above the microcontroller's supported limit, risking damage to the system.
+The 75 Ω burden resistor was chosen considering a maximum current of 32 A, a typical value for main breakers in Brazilian households. This choice ensures that the sensor’s output voltage, even under high current conditions, remains within the safe operating range of the ESP32’s internal ADC, which supports up to 3.3 V. 
+
+Lower resistor values can be used safely, although they alter the measurement sensitivity. Higher values **must not be used**, as they can generate voltages above the microcontroller's supported limit, risking damage to the system.
 
 The circuit assembly follows the scheme proposed by the OpenEnergyMonitor project, a consolidated reference in energy monitoring with microcontrollers.
 
