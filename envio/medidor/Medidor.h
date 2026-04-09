@@ -22,6 +22,9 @@ class Medidor {
         double coeficiente_linear = 0;
 
         bool ntpInicializado = false;
+        bool possuiReferenciaTempo = false;
+        time_t epochReferencia = 0;
+        uint32_t millisReferencia = 0;
 
         void iniciarNTP();
         int getEpoch();
@@ -37,6 +40,7 @@ class Medidor {
     public:
         Medidor();
 
+        void iniciarI2C();
         void setResistencia(double r);
         void setVoltasTransformador(double f);
         void setOffsetTensao(double offset);

@@ -22,15 +22,22 @@ int Medidor::getEpoch() {
         ntpInicializado = true;
     }
 
-    time_t now;
+    const uint32_t millisAtual = millis();
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo)) {
-        Serial.println("Medidor: Erro ao obter tempo local.");
-        return -1;
+
+    if (getLocalTime(&timeinfo, 1000)) {
+        epochReferencia = mktime(&timeinfo);
+        millisReferencia = millisAtual;
+        possuiReferenciaTempo = true;
+        return epochReferencia;
     }
 
-    time(&now);
-    return now;
+    if (possuiReferenciaTempo) {
+        const uint32_t deltaSegundos = (millisAtual - millisReferencia) / 1000;
+        return epochReferencia + deltaSegundos;
+    }
+
+    return -1;
 }
 
 void Medidor::iniciarNTP() {

@@ -7,7 +7,7 @@
 #include "conexao/Conexao.h"
 #include "envioMedicoes/EnvioMedicoes.h"
 #include "logador/Logador.h"
-#include "interfaceFisica/InterfaceFisica.h"
+#include "InterfaceFisica/InterfaceFisica.h"
 
 class Sistema {
 private:
