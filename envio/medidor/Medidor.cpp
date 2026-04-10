@@ -22,7 +22,7 @@ int Medidor::getEpoch() {
         ntpInicializado = true;
     }
 
-    const uint32_t millisAtual = millis();
+    const int millisAtual = millis();
     struct tm timeinfo;
 
     if (getLocalTime(&timeinfo, 1000)) {
@@ -33,7 +33,7 @@ int Medidor::getEpoch() {
     }
 
     if (possuiReferenciaTempo) {
-        const uint32_t deltaSegundos = (millisAtual - millisReferencia) / 1000;
+        const int deltaSegundos = (millisAtual - millisReferencia) / 1000;
         return epochReferencia + deltaSegundos;
     }
 
@@ -58,6 +58,7 @@ void Medidor::iniciarI2C() {
 }
 
 double Medidor::calcularMedia(double *dados, int tamanho) {
+    if (tamanho <= 0) return 0;
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
         soma += dados[i];
@@ -66,6 +67,7 @@ double Medidor::calcularMedia(double *dados, int tamanho) {
 }
 
 double Medidor::calcularDesvioPadrao(double *dados, int tamanho, double media) {
+    if (tamanho <= 0) return 0;
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
       soma += pow(dados[i] - media, 2);
