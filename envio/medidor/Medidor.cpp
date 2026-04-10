@@ -45,6 +45,7 @@ void Medidor::iniciarNTP() {
 }
 
 double Medidor::calcularMedia(int *dados, int tamanho) {
+    if (tamanho <= 0) return 0;
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
         soma += dados[i];
@@ -53,6 +54,7 @@ double Medidor::calcularMedia(int *dados, int tamanho) {
 }
 
 double Medidor::calcularDesvioPadrao(int *dados, int tamanho, double media) {
+    if (tamanho <= 0) return 0;
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
         soma += pow(dados[i] - media, 2);
