@@ -102,7 +102,7 @@ double Medidor::medirCorrenteBruta() {
     for (int i = 0; i < num_leituras; i++) {
         proximo_tempo += periodo_us;
         leituras[i] = analogRead(PINO_ANALOGICO);
-        while (micros() - proximo_tempo) < 0) {}
+        while ((micros() - proximo_tempo) < 0) {}
     }
 
     int tamanho_filtrado = filtrarDados(leituras, num_leituras, tensao_offset, dados_filtrados);
