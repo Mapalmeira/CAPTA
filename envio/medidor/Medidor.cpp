@@ -22,7 +22,7 @@ int Medidor::getEpoch() {
         ntpInicializado = true;
     }
 
-    const uint32_t millisAtual = millis();
+    const int millisAtual = millis();
     struct tm timeinfo;
 
     if (getLocalTime(&timeinfo, 1000)) {
@@ -33,7 +33,7 @@ int Medidor::getEpoch() {
     }
 
     if (possuiReferenciaTempo) {
-        const uint32_t deltaSegundos = (millisAtual - millisReferencia) / 1000;
+        const int deltaSegundos = (millisAtual - millisReferencia) / 1000;
         return epochReferencia + deltaSegundos;
     }
 
@@ -97,11 +97,12 @@ double Medidor::medirCorrenteBruta() {
         return 0;
     }
 
-    unsigned long tempo_inicial = micros();
+    int periodo_us = 1000000 / AMOSTRAS_POR_SEGUNDO;
+    int proximo_tempo = micros()
     for (int i = 0; i < num_leituras; i++) {
+        proximo_tempo += periodo_us;
         leituras[i] = analogRead(PINO_ANALOGICO);
-        unsigned long proximo_tempo = tempo_inicial + ((i + 1) * (1000000 / AMOSTRAS_POR_SEGUNDO));
-        while (micros() < proximo_tempo) {}
+        while (micros() - proximo_tempo) < 0) {}
     }
 
     int tamanho_filtrado = filtrarDados(leituras, num_leituras, tensao_offset, dados_filtrados);
