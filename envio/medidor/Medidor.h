@@ -15,11 +15,11 @@ class Medidor {
         int TEMPO_COLETA = 1000;
         int AMOSTRAS_POR_SEGUNDO = 750;
 
-        double resistencia = 75;
-        double voltas_transformador = 2000.0;
-        double tensao_offset = 1.65;
-        double coeficiente_angular = 1;
-        double coeficiente_linear = 0;
+        double resistencia;
+        double voltas_transformador;
+        double tensao_offset;
+        double coeficiente_angular;
+        double coeficiente_linear;
 
         bool ntpInicializado = false;
         bool possuiReferenciaTempo = false;
