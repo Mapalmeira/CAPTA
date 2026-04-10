@@ -98,7 +98,7 @@ double Medidor::medirCorrenteBruta() {
     }
 
     int periodo_us = 1000000 / AMOSTRAS_POR_SEGUNDO;
-    int proximo_tempo = micros()
+    int proximo_tempo = micros();
     for (int i = 0; i < num_leituras; i++) {
         proximo_tempo += periodo_us;
         leituras[i] = analogRead(PINO_ANALOGICO);
