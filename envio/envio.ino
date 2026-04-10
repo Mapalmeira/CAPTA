@@ -55,6 +55,7 @@ void setup() {
     delay(4000);
 
     // configurações do medidor
+    medidor.iniciarI2C();
     medidor.setResistencia(RESISTENCIA);
     medidor.setVoltasTransformador(VOLTAS_TRANSFORMADOR);
     medidor.setOffsetTensao(TENSAO_OFFSET);
