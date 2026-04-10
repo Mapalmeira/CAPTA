@@ -115,7 +115,7 @@ double Medidor::medirCorrenteBruta() {
     double *leituras = (double *)malloc(AMOSTRAS * sizeof(double));
     double *filtrados = (double *)malloc(AMOSTRAS * sizeof(double));
 
-    if (!leituras || !leituras) {
+    if (!leituras || !filtrados)
         Serial.println("Medidor: erro de alocação de memória.");
         if (leituras) free(leituras);
         if (filtrados) free(filtrados);
