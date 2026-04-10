@@ -44,7 +44,20 @@ void Medidor::iniciarNTP() {
     configTime(0, 0, "pool.ntp.org");
 }
 
-double Medidor::calcularMedia(int *dados, int tamanho) {
+void Medidor::iniciarI2C() {
+    Wire.begin();
+    Wire.setClock(400000);
+  
+    if (!ads.begin()) {
+      Serial.println("Medidor: ao iniciar ADS1115!");
+      return;
+    }
+
+    ads.setGain(GAIN_ONE);
+    ads.setDataRate(RATE_ADS1115_860SPS);
+}
+
+double Medidor::calcularMedia(double *dados, int tamanho) {
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
         soma += dados[i];
@@ -52,26 +65,27 @@ double Medidor::calcularMedia(int *dados, int tamanho) {
     return soma / tamanho;
 }
 
-double Medidor::calcularDesvioPadrao(int *dados, int tamanho, double media) {
+double Medidor::calcularDesvioPadrao(double *dados, int tamanho, double media) {
     double soma = 0;
     for (int i = 0; i < tamanho; i++) {
-        soma += pow(dados[i] - media, 2);
+      soma += pow(dados[i] - media, 2);
     }
     return sqrt(soma / tamanho);
 }
 
-int Medidor::filtrarDados(int *dados, int tamanho, double offset, double *dados_filtrados) {
+int Medidor::filtrarDados(double *dados, int tamanho, double offset, double *filtrados) {
     double media = calcularMedia(dados, tamanho);
     double desvio = calcularDesvioPadrao(dados, tamanho, media);
 
-    int validas = 0;
+    int validos = 0;
     for (int i = 0; i < tamanho; i++) {
-        if (abs(dados[i] - media) < 2 * desvio) {
-            dados_filtrados[validas] = (dados[i] / 4095.0) * 3.3 - offset;
-            validas++;
-        }
+      if (abs(dados[i] - media) < 2 * desvio) {
+        double tensao = dados[i] - offset;
+        filtrados[validos] = tensao;
+      validos++;
+      }
     }
-    return validas;
+    return validos;
 }
 
 double Medidor::calcularRMS(double *dados, int tamanho) {
@@ -83,30 +97,35 @@ double Medidor::calcularRMS(double *dados, int tamanho) {
     return sqrt(soma / tamanho);
 }
 
-double Medidor::medirCorrenteBruta() {
-    int num_leituras = (TEMPO_COLETA * AMOSTRAS_POR_SEGUNDO) / 1000;
-    int *leituras = (int *)malloc(num_leituras * sizeof(int));
-    double *dados_filtrados = (double *)malloc(num_leituras * sizeof(double));
+double Medidor::adcParaTensao(int leitura) {
+    return leitura * 0.000125;
+}
 
-    if (!leituras || !dados_filtrados) {
+void Medidor::obterLeituras(double *buffer, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        int16_t raw;
+        raw = ads.readADC_SingleEnded(0);
+        buffer[i] = adcParaTensao(raw);
+    }
+}
+
+double Medidor::medirCorrenteBruta() {
+    double *leituras = (double *)malloc(AMOSTRAS * sizeof(double));
+    double *filtrados = (double *)malloc(AMOSTRAS * sizeof(double));
+
+    if (!leituras || !leituras) {
         Serial.println("Medidor: erro de alocação de memória.");
         if (leituras) free(leituras);
-        if (dados_filtrados) free(dados_filtrados);
+        if (filtrados) free(filtrados);
         return 0;
     }
 
-    unsigned long tempo_inicial = micros();
-    for (int i = 0; i < num_leituras; i++) {
-        leituras[i] = analogRead(PINO_ANALOGICO);
-        unsigned long proximo_tempo = tempo_inicial + ((i + 1) * (1000000 / AMOSTRAS_POR_SEGUNDO));
-        while (micros() < proximo_tempo) {}
-    }
-
-    int tamanho_filtrado = filtrarDados(leituras, num_leituras, tensao_offset, dados_filtrados);
-    double tensao_RMS = calcularRMS(dados_filtrados, tamanho_filtrado);
+    obterLeituras(leituras, AMOSTRAS);
+    int validos = filtrarDados(leituras, AMOSTRAS, tensao_offset, filtrados);
+    double tensao_RMS = calcularRMS(filtrados, validos);
 
     free(leituras);
-    free(dados_filtrados);
+    free(filtrados);
 
     return (tensao_RMS / resistencia) * voltas_transformador;
 }

@@ -1,6 +1,8 @@
 #ifndef MEDIDOR_H
 #define MEDIDOR_H
 
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
 #include <WiFi.h>
 #include <time.h>
 #include <vector>
@@ -11,27 +13,28 @@ using Medicao = std::vector<ValorMedicao>;
 
 class Medidor {
     private:
-        int PINO_ANALOGICO = 36;
-        int TEMPO_COLETA = 1000;
-        int AMOSTRAS_POR_SEGUNDO = 750;
+        Adafruit_ADS1115 ads;
 
-        double resistencia = 75;
-        double voltas_transformador = 2000.0;
-        double tensao_offset = 1.65;
-        double coeficiente_angular = 1;
-        double coeficiente_linear = 0;
+        int AMOSTRAS = 750;
+
+        double resistencia;
+        double voltas_transformador;
+        double tensao_offset;
+        double coeficiente_angular;
+        double coeficiente_linear;
 
         bool ntpInicializado = false;
         bool possuiReferenciaTempo = false;
         time_t epochReferencia = 0;
         uint32_t millisReferencia = 0;
-
         void iniciarNTP();
         int getEpoch();
 
-        double calcularMedia(int *dados, int tamanho);
-        double calcularDesvioPadrao(int *dados, int tamanho, double media);
-        int filtrarDados(int *dados, int tamanho, double offset, double *dados_filtrados);
+        void obterLeituras(double *buffer, int tamanho);
+        double adcParaTensao(int leitura);
+        double calcularMedia(double *dados, int tamanho);
+        double calcularDesvioPadrao(double *dados, int tamanho, double media);
+        int filtrarDados(double *dados, int tamanho, double offset, double *dados_filtrados);
         double calcularRMS(double *dados, int tamanho);
 
         double medirCorrenteBruta();
