@@ -67,9 +67,11 @@ void setup() {
     return;
   }
 
+  unsigned long startedAt = micros();
   for (int i = 0; i < SAMPLE_COUNT; i++) {
     readings[i] = ads.readADC_SingleEnded(0);
-    delayMicroseconds(1000000 / SAMPLES_PER_SECOND);
+    unsigned long nextSampleAt = startedAt + ((i + 1) * (1000000 / SAMPLES_PER_SECOND));
+    while (micros() < nextSampleAt) {}
   }
 
   double offset = calculateVoltageOffset(readings, SAMPLE_COUNT);
