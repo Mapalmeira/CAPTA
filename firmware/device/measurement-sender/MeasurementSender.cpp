@@ -1,43 +1,36 @@
 #include "MeasurementSender.h"
 
 // Constructor
-MeasurementSender::MeasurementSender(String appsScriptUrl, Logger& logger, String token,
+MeasurementSender::MeasurementSender(String backendUrl, Logger& logger, String token, String tlsCaCertificate,
                              std::function<Measurement(void)> measurementFunction,
                              std::vector<int> decimalPlaces)
-    : logger(logger), requester(logger, appsScriptUrl, token), measurementFunction(measurementFunction), decimalPlaces(decimalPlaces)
+    : logger(logger), requester(logger, backendUrl, token, tlsCaCertificate), measurementFunction(measurementFunction), decimalPlaces(decimalPlaces)
 {}
 
-// Format one measurement using the wire protocol.
-String MeasurementSender::formatMeasurement(const Measurement& measurement) {
-    if (measurement.size() > decimalPlaces.size()) {
-        logger.logMessage("MeasurementSender: the number of decimal-place settings does not match the measurement values.");
+// Serialize one measurement as a JSON object.
+String MeasurementSender::formatMeasurementAsJson(const Measurement& measurement) {
+    if (measurement.size() != 2 || decimalPlaces.size() != 2) {
+        logger.logMessage("MeasurementSender: expected a timestamp and a current value.");
         return "";
     }
 
-    String row = "";
-    for (size_t i = 0; i < measurement.size(); i++) {
-        if (i > 0) { row += "|"; }
-
-        if (decimalPlaces[i] == -1) {
-            // Treat -1 as an integer.
-            row += String(std::get<int>(measurement[i]));
-        } else {
-            // Treat any other setting as a floating-point precision.
-            row += String(std::get<float>(measurement[i]), decimalPlaces[i]);
-        }
-    }
-    return row;
+    return "{\"timestamp\":" + String(std::get<int>(measurement[0])) +
+           ",\"current_amps\":" +
+           String(std::get<float>(measurement[1]), decimalPlaces[1]) + "}";
 }
 
-// Build a batch with multiple measurements.
-String MeasurementSender::buildRowBatch(int rows) {
-    String batch = "";
+// Build the structured JSON request body.
+String MeasurementSender::buildBatchJson(int rows) {
+    String batch = "{\"measurements\":[";
     int rowsAdded = 0;
 
     while (rowsAdded < rows && !buffer.empty()) {
-        String formattedMeasurement = formatMeasurement(buffer.at(rowsAdded));
+        String formattedMeasurement = formatMeasurementAsJson(buffer.at(rowsAdded));
+        if (formattedMeasurement.isEmpty()) {
+            return "";
+        }
 
-        if (rowsAdded > 0) { batch += "_"; }
+        if (rowsAdded > 0) { batch += ","; }
 
         batch += formattedMeasurement;
         rowsAdded++;
@@ -48,7 +41,7 @@ String MeasurementSender::buildRowBatch(int rows) {
         return "";
     }
 
-    return batch;
+    return batch + "]}";
 }
 
 // Take a measurement and append it to the buffer.
@@ -70,8 +63,8 @@ bool MeasurementSender::takeMeasurement() {
     return true;
 }
 
-// Send rows through a POST request.
-String MeasurementSender::sendRowsByPost(int rows) {
+// Send buffered measurements through a POST request.
+String MeasurementSender::sendBatch(int rows) {
     if (buffer.empty()) {
         logger.logMessage("MeasurementSender: no measurements are available to send.");
         return "empty buffer";
@@ -81,7 +74,7 @@ String MeasurementSender::sendRowsByPost(int rows) {
         rows = buffer.size();
     }
 
-    String batch = buildRowBatch(rows);
+    String batch = buildBatchJson(rows);
 
     if (batch.isEmpty()) {
         logger.logMessage("MeasurementSender: empty transmission batch. Cancelling transmission.");
@@ -95,13 +88,13 @@ String MeasurementSender::sendRowsByPost(int rows) {
         buffer.erase(buffer.begin(), buffer.begin() + rows);
         return "sent";
     } else {
-        logger.logMessage("MeasurementSender: failed to send measurements to Drive.");
+        logger.logMessage("MeasurementSender: failed to send measurements to the backend.");
         return "connection error";
     }
 }
 
-bool MeasurementSender::checkPostStatus() {
-    return requester.verifyPost();
+bool MeasurementSender::checkBackendStatus() {
+    return requester.verifyBackend();
 }
 
 int MeasurementSender::getBufferSize() {

@@ -3,8 +3,8 @@
 
 #include <deque>
 #include <variant>
-#include "HttpsRequester.h"
-#include "system/logger/Logger.h"
+#include "HttpRequester.h"
+#include "device/logger/Logger.h"
 
 using MeasurementValue = std::variant<int, float>;
 using Measurement = std::vector<MeasurementValue>; // Mixed values sent by the meter.
@@ -14,15 +14,15 @@ class MeasurementSender {
 private:
     std::deque<Measurement> buffer; // Pending measurements.
     std::function<Measurement(void)> measurementFunction;
-    HttpsRequester requester;
+    HttpRequester requester;
     MeasurementDecimalPlaces decimalPlaces;
     Logger& logger;
 
-    String formatMeasurement(const Measurement& measurement);
-    String buildRowBatch(int rows);
+    String formatMeasurementAsJson(const Measurement& measurement);
+    String buildBatchJson(int rows);
 
 public:
-    MeasurementSender(String appsScriptUrl, Logger& logger, String token,
+    MeasurementSender(String backendUrl, Logger& logger, String token, String tlsCaCertificate,
               std::function<Measurement(void)> measurementFunction,
               std::vector<int> decimalPlaces);
 
@@ -30,8 +30,8 @@ public:
     bool takeMeasurement();
 
     // Transmission
-    String sendRowsByPost(int rows);
-    bool checkPostStatus();
+    String sendBatch(int rows);
+    bool checkBackendStatus();
     int getBufferSize();
 };
 

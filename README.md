@@ -1,14 +1,14 @@
 # CAPTA – Automatic Power Collection and Storage with Transmission
 
-## Electrical Consumption Monitoring with ESP32 and Google Drive
+## Electrical Consumption Monitoring with ESP32 and FastAPI
 
-This project is a complete system for measuring, sending, storing, and visualizing electrical consumption data, using an ESP32 as the measurement unit and Google Drive as the storage and visualization backend.
+This project is a complete system for measuring, sending, storing, and visualizing electrical consumption data, using an ESP32 as the measurement unit and a FastAPI application as the backend.
 
 The system is divided into three main parts:
 
 1. **Hardware and Measurement**: includes the circuit connected to the ESP32 and the measurement logic.
 2. **Data Transmission**: embedded firmware on the ESP32 responsible for periodically sending the measurements.
-3. **Reception and Visualization**: scripts hosted on Google Apps Script that receive the data, store it in spreadsheets or `.csv` files, and display interactive visualizations.
+3. **Reception and Visualization**: a Python backend that validates structured requests, stores daily CSV files, and serves a small web dashboard.
 
 ## Components Used
 
@@ -25,7 +25,7 @@ The ESP32 reads electrical current using the SCT-013-000 sensor, following recom
 
 ### Data Transmission
 
-All data is sent to Google Drive exclusively via POST requests, directed to a Web App developed with Google Apps Script.
+Measurements are sent as structured JSON through authenticated POST requests to the FastAPI backend.
 
 Small samples are sent periodically throughout the day. This setup is ideal for real-time monitoring and continuous tracking in areas with internet access.
 
@@ -36,16 +36,16 @@ The system features:
 
 ### Reception
 
-On the server side, the Apps Script handles the POST requests, storing the received data in daily spreadsheets inside the `partialData/` folder.
+The backend validates each request and stores measurements in one CSV file per day.
 
 ### Visualization
 
-The data is visualized through a Google Sheets spreadsheet with an associated script. The spreadsheet allows:
+The backend serves a plain HTML and JavaScript dashboard that allows:
 
 - Viewing instantaneous power over a day.
 - Viewing daily consumption (kWh) for the past 30 days.
 - Filtering by specific time intervals (e.g., only between 9 AM and 6 PM).
-- Triggering graph generation through simple cell triggers.
+- Exporting each day as CSV.
 
 ## Important Notes
 
@@ -58,7 +58,7 @@ Access the specific READMEs for detailed information:
 
 - [`hardware/`](./docs/hardware/README.md): sensors, modules, and measurement logic.
 - [`data-transmission/`](./docs/data-transmission/README.md): ESP32 firmware logic and data transmission.
-- [`server/`](./server/): Apps Script for Drive storage and visualization spreadsheets.
+- [`backend/`](./docs/backend/README.md): FastAPI API, CSV storage, dashboard, and Podman instructions.
 
 ## References
 

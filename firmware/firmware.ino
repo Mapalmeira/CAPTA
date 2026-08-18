@@ -1,26 +1,27 @@
 // Header includes
-#include "system/System.h"
+#include "device/DeviceController.h"
 #include "meter/Meter.h"
-#include "system/physical-interface/PhysicalInterface.h"
-#include "system/measurement-sender/MeasurementSender.h"
-#include "system/measurement-sender/HttpsRequester.h"
-#include "system/logger/Logger.h"
-#include "system/connection/Connection.h"
+#include "device/physical-interface/PhysicalInterface.h"
+#include "device/measurement-sender/MeasurementSender.h"
+#include "device/measurement-sender/HttpRequester.h"
+#include "device/logger/Logger.h"
+#include "device/connection/Connection.h"
 
 // Implementation includes
-#include "system/System.cpp"
+#include "device/DeviceController.cpp"
 #include "meter/Meter.cpp"
-#include "system/physical-interface/PhysicalInterface.cpp"
-#include "system/measurement-sender/MeasurementSender.cpp"
-#include "system/measurement-sender/HttpsRequester.cpp"
-#include "system/logger/Logger.cpp"
-#include "system/connection/Connection.cpp"
+#include "device/physical-interface/PhysicalInterface.cpp"
+#include "device/measurement-sender/MeasurementSender.cpp"
+#include "device/measurement-sender/HttpRequester.cpp"
+#include "device/logger/Logger.cpp"
+#include "device/connection/Connection.cpp"
 
-// System settings
+// Device settings
 constexpr const char* SSID = "";
 constexpr const char* PASSWORD = "";
-constexpr const char* APPS_SCRIPT_URL = "";
+constexpr const char* BACKEND_URL = "";
 constexpr const char* TOKEN = "";
+constexpr const char* TLS_CA_CERTIFICATE = ""; // Required only when BACKEND_URL uses https://.
 constexpr bool ENABLE_LOGS = true;  // Reserved for a future implementation.
 constexpr bool PERIODIC_RESTART = true;
 constexpr int TRANSMISSIONS_PER_BATCH = 10;
@@ -41,11 +42,12 @@ auto measurementFunction = []() {
     return meter.measure();
 };
 
-System systemController(
+DeviceController deviceController(
     SSID,
     PASSWORD,
-    APPS_SCRIPT_URL,
+    BACKEND_URL,
     TOKEN,
+    TLS_CA_CERTIFICATE,
     measurementFunction,
     DECIMAL_PLACES // Decimal places for the timestamp and current. -1 means integer.
 );
@@ -62,24 +64,24 @@ void setup() {
     meter.setCorrectionCoefficients(SCALE_COEFFICIENT, INTERCEPT_COEFFICIENT);
 
     // Optional system settings
-    systemController.setLogging(ENABLE_LOGS);
-    systemController.setPeriodicRestart(PERIODIC_RESTART);
-    systemController.setTransmissionsPerBatch(TRANSMISSIONS_PER_BATCH);
-    systemController.setAdditionalDelay(ADDITIONAL_DELAY_MS);
-    systemController.setProgressiveDelay(PROGRESSIVE_DELAY);
+    deviceController.setLogging(ENABLE_LOGS);
+    deviceController.setPeriodicRestart(PERIODIC_RESTART);
+    deviceController.setTransmissionsPerBatch(TRANSMISSIONS_PER_BATCH);
+    deviceController.setAdditionalDelay(ADDITIONAL_DELAY_MS);
+    deviceController.setProgressiveDelay(PROGRESSIVE_DELAY);
 
     // Start the system.
-    systemController.begin();
+    deviceController.begin();
 }
 
 void loop() {
     // Check the serial input for commands.
     if (Serial.available()) {
         String command = Serial.readStringUntil('\n');
-        systemController.handleCommand(command);
+        deviceController.handleCommand(command);
     }
 
     // Run the measurement and transmission system.
-    systemController.loop();
+    deviceController.loop();
     delay(100);
 }

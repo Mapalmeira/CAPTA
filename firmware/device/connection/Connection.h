@@ -2,7 +2,7 @@
 #define CONNECTION_H
 
 #include <WiFi.h>
-#include "system/logger/Logger.h"
+#include "device/logger/Logger.h"
 
 class Connection {
 private:

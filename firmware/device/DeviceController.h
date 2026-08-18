@@ -1,5 +1,5 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef DEVICE_CONTROLLER_H
+#define DEVICE_CONTROLLER_H
 
 #include <Arduino.h>
 #include <functional>
@@ -9,12 +9,12 @@
 #include "logger/Logger.h"
 #include "physical-interface/PhysicalInterface.h"
 
-class System {
+class DeviceController {
 private:
     // Connection
     String SSID;
     String password;
-    String appsScriptUrl;
+    String backendUrl;
 
     // Operating mode
     String operatingMode;
@@ -41,7 +41,7 @@ private:
     int MAX_TRANSMISSIONS_PER_BATCH = 50;
 
 public:
-    System(String ssid, String password, String url, String token,
+    DeviceController(String ssid, String password, String url, String token, String tlsCaCertificate,
         std::function<Measurement(void)> measurementFunction,
         std::vector<int> decimalPlaces);
 
@@ -55,7 +55,7 @@ public:
     bool takeMeasurement();
 
     // Transmission
-    String sendSpreadsheetRows(int rows);
+    String sendMeasurements(int rows);
 
     // Customizations
     void setAdditionalDelay(int delayMs);

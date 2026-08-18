@@ -1,21 +1,21 @@
-#include "System.h"
+#include "DeviceController.h"
 
 // Constructor
-System::System(String ssid, String password, String url, String token,
+DeviceController::DeviceController(String ssid, String password, String url, String token, String tlsCaCertificate,
                  std::function<Measurement(void)> measurementFunction,
                  std::vector<int> decimalPlaces)
     : SSID(ssid),
       password(password),
-      appsScriptUrl(url),
+      backendUrl(url),
       connection(ssid, password),
-      measurementSender(url, logger, token, measurementFunction, decimalPlaces),
+      measurementSender(url, logger, token, tlsCaCertificate, measurementFunction, decimalPlaces),
       physicalInterface(),
       operatingMode("sending")
 {}
 
 
-void System::begin() {
-    Serial.println("System: starting...");
+void DeviceController::begin() {
+    Serial.println("DeviceController: starting...");
 
     // Start the logger.
     logger.begin(this->saveLogs);
@@ -34,7 +34,7 @@ void System::begin() {
 
 
 // Connect to Wi-Fi.
-bool System::connectWiFi() {
+bool DeviceController::connectWiFi() {
     bool connected = connection.connectWiFi();
     if (connected) {
         connectionFailures = 0;
@@ -44,7 +44,7 @@ bool System::connectWiFi() {
     return connected;
 }
 
-bool System::takeMeasurement() {
+bool DeviceController::takeMeasurement() {
     bool measured = measurementSender.takeMeasurement();
     if (!measured) {
         measurementFailures += 1;
@@ -55,8 +55,8 @@ bool System::takeMeasurement() {
 }
 
 // Transmission
-String System::sendSpreadsheetRows(int rows) {
-    String status = measurementSender.sendRowsByPost(rows);
+String DeviceController::sendMeasurements(int rows) {
+    String status = measurementSender.sendBatch(rows);
     if (status == "measurement error") {
         measurementFailures += 1;
     } else if (status == "connection error") {
@@ -69,36 +69,36 @@ String System::sendSpreadsheetRows(int rows) {
 }
 
 // Customizations
-void System::setAdditionalDelay(int delayMs) {
+void DeviceController::setAdditionalDelay(int delayMs) {
     this->additionalDelayMs = delayMs;
 }
 
-void System::setProgressiveDelay(bool enabled) {
+void DeviceController::setProgressiveDelay(bool enabled) {
     this->progressiveDelay = enabled;
 }
 
-void System::setLogging(bool enabled) {
+void DeviceController::setLogging(bool enabled) {
     this->saveLogs = enabled;
 }
 
-void System::setPeriodicRestart(bool enabled) {
+void DeviceController::setPeriodicRestart(bool enabled) {
     this->periodicRestart = enabled;
 }
 
-void System::setTransmissionsPerBatch(int transmissions) {
+void DeviceController::setTransmissionsPerBatch(int transmissions) {
     this->transmissionsPerBatch = transmissions;
 }
 
 // Modes
-void System::setMode(String mode) {
+void DeviceController::setMode(String mode) {
     if (mode == "sending" || mode == "pending" || mode == "disconnected" || mode == "shutdown" || mode == "restart") {
         this->operatingMode = mode;
         return;
     }
-    logger.logMessage("System: invalid mode!");
+    logger.logMessage("DeviceController: invalid mode!");
 }
 
-void System::loop() {
+void DeviceController::loop() {
     // Switch between operating modes.
     if (connectionFailures >= 3 && !connection.isConnected()) {operatingMode = "disconnected";}
     if (operatingMode == "disconnected" && connection.isConnected()) {operatingMode = "sending";}
@@ -107,12 +107,12 @@ void System::loop() {
 
     // Restart when recovery is no longer safe.
     if (measurementFailures >= 3) {operatingMode = "restart";} // Measurements should never fail.
-    if (connectionFailures >= 3 && connection.isConnected() && !measurementSender.checkPostStatus()) {operatingMode = "restart";}
+    if (connectionFailures >= 3 && connection.isConnected() && !measurementSender.checkBackendStatus()) {operatingMode = "restart";}
     if (periodicRestart && (millis() - startTimeMs >= 1 * 60 * 60 * 1000)) {operatingMode = "restart";}
 
     // Print useful status information.
-    logger.logMessage("\nSystem: mode '" + operatingMode + "'");
-    Serial.println("System: packets remaining in buffer: " + String(measurementSender.getBufferSize()));
+    logger.logMessage("\nDeviceController: mode '" + operatingMode + "'");
+    Serial.println("DeviceController: packets remaining in buffer: " + String(measurementSender.getBufferSize()));
 
     // Execute the current mode.
     if (operatingMode == "sending") {runSendingMode();}
@@ -121,23 +121,23 @@ void System::loop() {
     else if (operatingMode == "shutdown") {runShutdownMode();}
     else if (operatingMode == "restart") {runRestartMode();}
     else {
-        logger.logMessage("System: invalid operating mode. Reverting to sending mode.");
+        logger.logMessage("DeviceController: invalid operating mode. Reverting to sending mode.");
         operatingMode = "sending";
     }
 }
 
-void System::runSendingMode() {
+void DeviceController::runSendingMode() {
     takeMeasurement();
 
     if (measurementSender.getBufferSize() >= transmissionsPerBatch) {
-        sendSpreadsheetRows(MAX_TRANSMISSIONS_PER_BATCH);
+        sendMeasurements(MAX_TRANSMISSIONS_PER_BATCH);
     }
 }
-void System::runPendingMode() {
-    sendSpreadsheetRows(MAX_TRANSMISSIONS_PER_BATCH);
+void DeviceController::runPendingMode() {
+    sendMeasurements(MAX_TRANSMISSIONS_PER_BATCH);
 }
 
-void System::runDisconnectedMode() {
+void DeviceController::runDisconnectedMode() {
     takeMeasurement();
     if (connectWiFi()) {
         connectionFailures = 0;
@@ -160,31 +160,31 @@ void System::runDisconnectedMode() {
     }
 }
 
-void System::runShutdownMode() {
-    sendSpreadsheetRows(MAX_TRANSMISSIONS_PER_BATCH);
-    logger.logMessage("System: shutting down ESP32...");
+void DeviceController::runShutdownMode() {
+    sendMeasurements(MAX_TRANSMISSIONS_PER_BATCH);
+    logger.logMessage("DeviceController: shutting down ESP32...");
     delay(1000);
     esp_deep_sleep_start();
 }
 
-void System::runRestartMode() {
-    sendSpreadsheetRows(MAX_TRANSMISSIONS_PER_BATCH);
-    logger.logMessage("System: restarting ESP32...");
+void DeviceController::runRestartMode() {
+    sendMeasurements(MAX_TRANSMISSIONS_PER_BATCH);
+    logger.logMessage("DeviceController: restarting ESP32...");
     delay(1000);
     ESP.restart();
 }
 
-String System::getMode() {
+String DeviceController::getMode() {
     return operatingMode;
 }
 
 // User interaction
-void System::handleCommand(String command) {
+void DeviceController::handleCommand(String command) {
     command.trim();
 
     if (command.equalsIgnoreCase("stop")) {
         operatingMode = "shutdown";
     } else {
-        logger.logMessage("System: unknown command.");
+        logger.logMessage("DeviceController: unknown command.");
     }
 }
