@@ -1,68 +1,68 @@
-int PINO_ANALOGICO = 36;
-int AMOSTRAS = 10000;
-int AMOSTRAS_POR_SEGUNDO = 750;
+int ANALOG_PIN = 36;
+int SAMPLE_COUNT = 10000;
+int SAMPLES_PER_SECOND = 750;
 
-// Converte valor ADC para tensão (0 a 3.3V)
-double adcParaTensao(int leitura) {
-  return (leitura / 4095.0) * 3.3;
+// Convert an ADC reading to voltage (0 to 3.3 V).
+double adcToVoltage(int reading) {
+  return (reading / 4095.0) * 3.3;
 }
 
-// Calcula a média dos dados
-double calcularMedia(int *dados, int tamanho) {
-  double soma = 0;
-  for (int i = 0; i < tamanho; i++) {
-    soma += dados[i];
+// Calculate the data mean.
+double calculateMean(int *data, int size) {
+  double sum = 0;
+  for (int i = 0; i < size; i++) {
+    sum += data[i];
   }
-  return soma / tamanho;
+  return sum / size;
 }
 
-// Calcula o desvio padrão dos dados
-double calcularDesvioPadrao(int *dados, int tamanho, double media) {
-  double soma = 0;
-  for (int i = 0; i < tamanho; i++) {
-    soma += pow(dados[i] - media, 2);
+// Calculate the data standard deviation.
+double calculateStandardDeviation(int *data, int size, double mean) {
+  double sum = 0;
+  for (int i = 0; i < size; i++) {
+    sum += pow(data[i] - mean, 2);
   }
-  return sqrt(soma / tamanho);
+  return sqrt(sum / size);
 }
 
-// Calcula a média filtrada (remove outliers)
-double calcularOffsetTensao(int *dados, int tamanho) {
-  double media = calcularMedia(dados, tamanho);
-  double desvio = calcularDesvioPadrao(dados, tamanho, media);
+// Calculate a filtered mean after removing outliers.
+double calculateVoltageOffset(int *data, int size) {
+  double mean = calculateMean(data, size);
+  double standardDeviation = calculateStandardDeviation(data, size, mean);
 
-  double soma = 0;
-  int validas = 0;
-  for (int i = 0; i < tamanho; i++) {
-    if (abs(dados[i] - media) < 2 * desvio) {
-      soma += adcParaTensao(dados[i]);
-      validas++;
+  double sum = 0;
+  int validCount = 0;
+  for (int i = 0; i < size; i++) {
+    if (abs(data[i] - mean) < 2 * standardDeviation) {
+      sum += adcToVoltage(data[i]);
+      validCount++;
     }
   }
 
-  if (validas == 0) return 0;
-  return soma / validas;
+  if (validCount == 0) return 0;
+  return sum / validCount;
 }
 
 void setup() {
   Serial.begin(115200);
-  delay(1000); // Aguarda inicialização do Serial
+  delay(1000); // Wait for Serial initialization.
 
-  int *leituras = (int *)malloc(AMOSTRAS * sizeof(int));
-  if (leituras == NULL) {
-    Serial.println("Erro ao alocar memória.");
+  int *readings = (int *)malloc(SAMPLE_COUNT * sizeof(int));
+  if (readings == NULL) {
+    Serial.println("Memory allocation error.");
     return;
   }
 
-  for (int i = 0; i < AMOSTRAS; i++) {
-    leituras[i] = analogRead(PINO_ANALOGICO);
-    delayMicroseconds(1000000 / AMOSTRAS_POR_SEGUNDO);
+  for (int i = 0; i < SAMPLE_COUNT; i++) {
+    readings[i] = analogRead(ANALOG_PIN);
+    delayMicroseconds(1000000 / SAMPLES_PER_SECOND);
   }
 
-  double offset = calcularOffsetTensao(leituras, AMOSTRAS);
-  Serial.print("Offset de tensão (V): ");
+  double offset = calculateVoltageOffset(readings, SAMPLE_COUNT);
+  Serial.print("Voltage offset (V): ");
   Serial.println(offset, 6);
 
-  free(leituras);
+  free(readings);
 }
 
 void loop() {

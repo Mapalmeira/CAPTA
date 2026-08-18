@@ -10,16 +10,12 @@ The system is divided into three main parts:
 2. **Data Transmission**: embedded firmware on the ESP32 responsible for periodically sending the measurements.
 3. **Reception and Visualization**: scripts hosted on Google Apps Script that receive the data, store it in spreadsheets or `.csv` files, and display interactive visualizations.
 
----
-
 ## Components Used
 
 - **ESP32**: the main microcontroller.
 - **SCT-013-000 Sensor**: a current transformer for AC current measurement.
 - **Electronic components**: one 10μF capacitor, one 75 Ω resistor, two 10kΩ resistors.
 - **microSD card (and external module)** (optional): for local data storage and configuration files.
-
----
 
 ## General Operation
 
@@ -29,7 +25,7 @@ The ESP32 reads electrical current using the SCT-013-000 sensor, following recom
 
 ### Data Transmission
 
-All data is sent to Google Drive exclusively via **POST** requests, directed to a Web App developed with Google Apps Script.
+All data is sent to Google Drive exclusively via POST requests, directed to a Web App developed with Google Apps Script.
 
 Small samples are sent periodically throughout the day. This setup is ideal for real-time monitoring and continuous tracking in areas with internet access.
 
@@ -40,25 +36,21 @@ The system features:
 
 ### Reception
 
-On the server side, the Apps Script handles the POST requests, storing the received data in daily spreadsheets inside the `dadosPart/` folder.
+On the server side, the Apps Script handles the POST requests, storing the received data in daily spreadsheets inside the `partialData/` folder.
 
 ### Visualization
 
 The data is visualized through a Google Sheets spreadsheet with an associated script. The spreadsheet allows:
 
-- Viewing **instantaneous power over a day**.
-- Viewing **daily consumption (kWh)** for the past 30 days.
+- Viewing instantaneous power over a day.
+- Viewing daily consumption (kWh) for the past 30 days.
 - Filtering by specific time intervals (e.g., only between 9 AM and 6 PM).
 - Triggering graph generation through simple cell triggers.
-
----
 
 ## Important Notes
 
 - The system currently sends only `[timestamp, current]` pairs, but the codebase is structured to easily allow expansion for other types of measurements.
 - Accuracy is acceptable for residential environments, but technical limitations exist (see the hardware README).
-
----
 
 ## Next Steps
 
@@ -66,9 +58,7 @@ Access the specific READMEs for detailed information:
 
 - [`hardware/`](./docs/hardware/README.md): sensors, modules, and measurement logic.
 - [`data-transmission/`](./docs/data-transmission/README.md): ESP32 firmware logic and data transmission.
-- [`server/`](./docs/server/README.md): Apps Script, Drive storage, and visualization spreadsheets.
-
----
+- [`server/`](./server/): Apps Script for Drive storage and visualization spreadsheets.
 
 ## References
 
