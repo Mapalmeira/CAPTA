@@ -12,6 +12,11 @@ void Meter::setCorrectionCoefficients(double scale, double intercept) {
 
 Measurement Meter::measure() {
     int timestamp = getEpoch();
+    if (timestamp <= 0) {
+        Serial.println("Meter: time is not synchronized; measurement skipped.");
+        return {};
+    }
+
     float current = static_cast<float>(measureCorrectedCurrent());
     return {timestamp, current};
 }

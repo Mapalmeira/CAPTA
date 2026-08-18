@@ -7,9 +7,9 @@ from app.repository.csv_repository import csv_repository
 
 class MeasurementService:
     def ingest(self, batch: MeasurementBatch) -> IngestionResponse:
-        daily_files = csv_repository.append(batch.measurements)
+        stored, daily_files = csv_repository.append(batch.measurements)
         return IngestionResponse(
-            stored=len(batch.measurements),
+            stored=stored,
             daily_files=[f"{day}.csv" for day in daily_files],
         )
 
