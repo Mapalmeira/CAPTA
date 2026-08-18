@@ -1,0 +1,10 @@
+firmware/libraries/
+firmware/secrets.h
+__pycache__/
+*.py[cod]
+backend/data/
+.venv/
+.env
+secrets
+.secrets
+/token.txt

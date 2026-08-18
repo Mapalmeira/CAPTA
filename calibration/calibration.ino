@@ -1,4 +1,6 @@
-int ANALOG_PIN = 36;
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
+
 int COLLECTION_TIME_MS = 1000;
 int SAMPLES_PER_SECOND = 750;
 
@@ -8,13 +10,15 @@ double voltageOffset = 1.535722;       // Voltage offset measured with offset.in
 double scaleCoefficient = 1.0;        // Scale coefficient (1.0 by default).
 double interceptCoefficient = 0.0;    // Offset correction (0.0 by default).
 
-// Convert a raw ADC reading to voltage.
-double adcToVoltage(int reading) {
-  return (reading / 4095.0) * 3.3;
+Adafruit_ADS1115 ads;
+
+// Convert a raw ADS1115 reading to voltage.
+double adcToVoltage(int16_t reading) {
+  return ads.computeVolts(reading);
 }
 
 // Calculate the data mean.
-double calculateMean(int *data, int size) {
+double calculateMean(int16_t *data, int size) {
   double sum = 0;
   for (int i = 0; i < size; i++) {
     sum += data[i];
@@ -23,7 +27,7 @@ double calculateMean(int *data, int size) {
 }
 
 // Calculate the data standard deviation.
-double calculateStandardDeviation(int *data, int size, double mean) {
+double calculateStandardDeviation(int16_t *data, int size, double mean) {
   double sum = 0;
   for (int i = 0; i < size; i++) {
     sum += pow(data[i] - mean, 2);
@@ -32,7 +36,7 @@ double calculateStandardDeviation(int *data, int size, double mean) {
 }
 
 // Remove outliers and subtract the voltage offset.
-int filterData(int *data, int size, double offset, double *filteredData) {
+int filterData(int16_t *data, int size, double offset, double *filteredData) {
   double mean = calculateMean(data, size);
   double standardDeviation = calculateStandardDeviation(data, size, mean);
 
@@ -61,11 +65,21 @@ double calculateRMS(double *data, int size) {
 void setup() {
   Serial.begin(115200);
   delay(1000);
+
+  Wire.begin();
+  Wire.setClock(400000);
+  if (!ads.begin()) {
+    Serial.println("Failed to initialize ADS1115.");
+    while (true) delay(1000);
+  }
+
+  ads.setGain(GAIN_ONE);
+  ads.setDataRate(RATE_ADS1115_860SPS);
 }
 
 void loop() {
   int sampleCount = (COLLECTION_TIME_MS * SAMPLES_PER_SECOND) / 1000;
-  int *readings = (int *)malloc(sampleCount * sizeof(int));
+  int16_t *readings = (int16_t *)malloc(sampleCount * sizeof(int16_t));
   double *filteredData = (double *)malloc(sampleCount * sizeof(double));
 
   if (readings == NULL || filteredData == NULL) {
@@ -76,7 +90,7 @@ void loop() {
   // Collect samples.
   unsigned long startedAt = micros();
   for (int i = 0; i < sampleCount; i++) {
-    readings[i] = analogRead(ANALOG_PIN);
+    readings[i] = ads.readADC_SingleEnded(0);
     unsigned long nextSampleAt = startedAt + ((i + 1) * (1000000 / SAMPLES_PER_SECOND));
     while (micros() < nextSampleAt) {}
   }
