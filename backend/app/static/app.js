@@ -19,50 +19,259 @@ async function api(path) {
   return response;
 }
 
-function drawChart(canvasId, values, labels, color) {
-  const canvas = document.getElementById(canvasId);
-  const ratio = window.devicePixelRatio || 1;
-  const width = canvas.clientWidth;
-  const height = 280;
-  canvas.width = width * ratio;
-  canvas.height = height * ratio;
+const chartStates = new Map();
 
+function niceScale(maximum, targetTicks = 5) {
+  const safeMaximum = maximum > 0 ? maximum : 1;
+  const roughStep = safeMaximum / targetTicks;
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalized = roughStep / magnitude;
+  let niceNormalized;
+
+  if (normalized <= 1) niceNormalized = 1;
+  else if (normalized <= 2) niceNormalized = 2;
+  else if (normalized <= 2.5) niceNormalized = 2.5;
+  else if (normalized <= 5) niceNormalized = 5;
+  else niceNormalized = 10;
+
+  const step = niceNormalized * magnitude;
+  return { maximum: Math.ceil(safeMaximum / step) * step, step };
+}
+
+function axisNumber(value, step) {
+  if (step >= 10) return value.toFixed(0);
+  if (step >= 1) return value.toFixed(1).replace(/\.0$/, "");
+  return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function xTickIndexes(pointCount, maximumTicks) {
+  if (pointCount <= maximumTicks) return Array.from({ length: pointCount }, (_, index) => index);
+
+  const indexes = new Set();
+  for (let tick = 0; tick < maximumTicks; tick += 1) {
+    indexes.add(Math.round((tick * (pointCount - 1)) / (maximumTicks - 1)));
+  }
+  return [...indexes];
+}
+
+function hourLabel(timestamp) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(new Date(timestamp * 1000));
+}
+
+function renderChart(state) {
+  const { canvas, points, options } = state;
   const context = canvas.getContext("2d");
-  context.scale(ratio, ratio);
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.max(canvas.clientWidth, 280);
+  const height = 340;
+  const margin = { top: 28, right: 22, bottom: 48, left: 66 };
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = height - margin.top - margin.bottom;
+
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(height * ratio);
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
   context.clearRect(0, 0, width, height);
-  if (!values.length) return;
+  if (!points.length) return;
 
-  const padding = 42;
-  const maximum = Math.max(...values, 1);
-  const chartWidth = width - padding * 2;
-  const chartHeight = height - padding * 2;
+  const scale = niceScale(Math.max(...points.map((point) => point.value)));
+  const regularXInterval = options.xTickInterval;
+  const rawMinimumX = Math.min(...points.map((point) => point.x));
+  const rawMaximumX = Math.max(...points.map((point) => point.x));
+  let minimumX = regularXInterval
+    ? Math.floor(rawMinimumX / regularXInterval) * regularXInterval
+    : rawMinimumX;
+  let maximumX = regularXInterval
+    ? Math.ceil(rawMaximumX / regularXInterval) * regularXInterval
+    : rawMaximumX;
+  if (regularXInterval && minimumX === maximumX) maximumX += regularXInterval;
+  const xPosition = (value, index) => {
+    if (minimumX === maximumX) return margin.left + chartWidth / 2;
+    if (!Number.isFinite(value)) return margin.left + (chartWidth * index) / Math.max(points.length - 1, 1);
+    return margin.left + chartWidth * ((value - minimumX) / (maximumX - minimumX));
+  };
+  const yPosition = (value) => margin.top + chartHeight * (1 - value / scale.maximum);
 
-  context.strokeStyle = "#c8d0d8";
+  context.font = "12px system-ui";
+  context.lineWidth = 1;
+  context.textBaseline = "middle";
+  const yTicks = Math.round(scale.maximum / scale.step);
+  for (let tick = 0; tick <= yTicks; tick += 1) {
+    const value = tick * scale.step;
+    const y = yPosition(value);
+    context.strokeStyle = tick === 0 ? "#aeb8c2" : "#e4e8ec";
+    context.beginPath();
+    context.moveTo(margin.left, y);
+    context.lineTo(width - margin.right, y);
+    context.stroke();
+    context.fillStyle = "#53606d";
+    context.textAlign = "right";
+    context.fillText(axisNumber(value, scale.step), margin.left - 10, y);
+  }
+
+  context.fillStyle = "#53606d";
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
+  context.fillText(options.unit, margin.left, 16);
+
+  const xTicks = [];
+  if (regularXInterval) {
+    for (let value = minimumX; value <= maximumX; value += regularXInterval) {
+      xTicks.push({ value, label: options.xTickFormatter(value) });
+    }
+  } else {
+    points.forEach((point, index) => xTicks.push({ value: point.x, label: point.label, pointIndex: index }));
+  }
+
+  const maximumXLabels = Math.max(2, Math.min(8, Math.floor(chartWidth / 72)));
+  const labelIndexes = new Set(xTickIndexes(xTicks.length, maximumXLabels));
+  context.textBaseline = "top";
+  xTicks.forEach((tick, tickIndex) => {
+    const x = xPosition(tick.value, tick.pointIndex ?? tickIndex);
+    context.strokeStyle = "#eef1f4";
+    context.beginPath();
+    context.moveTo(x, margin.top);
+    context.lineTo(x, height - margin.bottom);
+    context.stroke();
+    context.strokeStyle = "#aeb8c2";
+    context.beginPath();
+    context.moveTo(x, height - margin.bottom);
+    context.lineTo(x, height - margin.bottom + 5);
+    context.stroke();
+    if (!labelIndexes.has(tickIndex)) return;
+    context.fillStyle = "#53606d";
+    context.textAlign = tickIndex === 0 ? "left" : tickIndex === xTicks.length - 1 ? "right" : "center";
+    context.fillText(tick.label, x, height - margin.bottom + 10);
+  });
+
+  const coordinates = points.map((point, index) => ({
+    x: xPosition(point.x, index),
+    y: yPosition(point.value),
+  }));
+  state.coordinates = coordinates;
+  state.bounds = { left: margin.left, right: width - margin.right, top: margin.top, bottom: height - margin.bottom };
+
   context.beginPath();
-  context.moveTo(padding, padding);
-  context.lineTo(padding, height - padding);
-  context.lineTo(width - padding, height - padding);
-  context.stroke();
-
-  context.strokeStyle = color;
-  context.lineWidth = 2;
-  context.beginPath();
-  values.forEach((value, index) => {
-    const x = padding + chartWidth * (values.length === 1 ? 0 : index / (values.length - 1));
-    const y = height - padding - chartHeight * (value / maximum);
+  coordinates.forEach(({ x, y }, index) => {
     if (index === 0) context.moveTo(x, y);
     else context.lineTo(x, y);
   });
+  context.lineTo(coordinates.at(-1).x, height - margin.bottom);
+  context.lineTo(coordinates[0].x, height - margin.bottom);
+  context.closePath();
+  context.fillStyle = `${options.color}18`;
+  context.fill();
+
+  context.beginPath();
+  coordinates.forEach(({ x, y }, index) => {
+    if (index === 0) context.moveTo(x, y);
+    else context.lineTo(x, y);
+  });
+  context.strokeStyle = options.color;
+  context.lineWidth = 2.5;
+  context.lineJoin = "round";
+  context.lineCap = "round";
   context.stroke();
 
-  context.fillStyle = "#53606d";
+  if (coordinates.length <= 100) {
+    context.fillStyle = "white";
+    context.strokeStyle = options.color;
+    context.lineWidth = 1.5;
+    coordinates.forEach(({ x, y }) => {
+      context.beginPath();
+      context.arc(x, y, 2.5, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+    });
+  }
+
+  if (state.hoverIndex === null || !coordinates[state.hoverIndex]) return;
+
+  const hovered = coordinates[state.hoverIndex];
+  const point = points[state.hoverIndex];
+  context.save();
+  context.setLineDash([4, 4]);
+  context.strokeStyle = "#7a8793";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(hovered.x, margin.top);
+  context.lineTo(hovered.x, height - margin.bottom);
+  context.stroke();
+  context.restore();
+
+  context.beginPath();
+  context.arc(hovered.x, hovered.y, 5, 0, Math.PI * 2);
+  context.fillStyle = options.color;
+  context.fill();
+  context.strokeStyle = "white";
+  context.lineWidth = 2;
+  context.stroke();
+
+  const valueText = `${point.value.toFixed(options.decimals)} ${options.unit}`;
   context.font = "12px system-ui";
-  context.fillText("0", 16, height - padding + 4);
-  context.fillText(maximum.toFixed(2), 4, padding + 4);
-  context.fillText(labels[0] || "", padding, height - 12);
-  context.textAlign = "right";
-  context.fillText(labels.at(-1) || "", width - padding, height - 12);
+  const tooltipWidth = Math.max(context.measureText(point.label).width, context.measureText(valueText).width) + 24;
+  const tooltipHeight = 52;
+  let tooltipX = hovered.x + 12;
+  if (tooltipX + tooltipWidth > width - 6) tooltipX = hovered.x - tooltipWidth - 12;
+  const tooltipY = Math.max(6, Math.min(hovered.y - tooltipHeight - 10, height - tooltipHeight - 6));
+
+  context.fillStyle = "#17212b";
+  context.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+  context.fillStyle = "white";
   context.textAlign = "left";
+  context.textBaseline = "top";
+  context.fillText(point.label, tooltipX + 12, tooltipY + 9);
+  context.font = "600 12px system-ui";
+  context.fillText(valueText, tooltipX + 12, tooltipY + 29);
+}
+
+function drawChart(canvasId, points, options) {
+  const canvas = document.getElementById(canvasId);
+  let state = chartStates.get(canvasId);
+
+  if (!state) {
+    state = { canvas, points: [], options: {}, coordinates: [], bounds: null, hoverIndex: null };
+    chartStates.set(canvasId, state);
+
+    canvas.addEventListener("pointermove", (event) => {
+      if (!state.coordinates.length || !state.bounds) return;
+      const rectangle = canvas.getBoundingClientRect();
+      const pointerX = event.clientX - rectangle.left;
+      const pointerY = event.clientY - rectangle.top;
+      const inside = pointerX >= state.bounds.left && pointerX <= state.bounds.right
+        && pointerY >= state.bounds.top && pointerY <= state.bounds.bottom;
+      const nextIndex = inside
+        ? state.coordinates.reduce(
+          (nearest, coordinate, index) => Math.abs(coordinate.x - pointerX) < Math.abs(state.coordinates[nearest].x - pointerX) ? index : nearest,
+          0,
+        )
+        : null;
+      if (nextIndex !== state.hoverIndex) {
+        state.hoverIndex = nextIndex;
+        renderChart(state);
+      }
+    });
+    canvas.addEventListener("pointerleave", () => {
+      if (state.hoverIndex !== null) {
+        state.hoverIndex = null;
+        renderChart(state);
+      }
+    });
+
+    if (typeof ResizeObserver !== "undefined") {
+      state.resizeObserver = new ResizeObserver(() => renderChart(state));
+      state.resizeObserver.observe(canvas);
+    }
+  }
+
+  state.points = points;
+  state.options = options;
+  state.hoverIndex = null;
+  renderChart(state);
 }
 
 document.getElementById("power-form").addEventListener("submit", async (event) => {
@@ -78,9 +287,18 @@ document.getElementById("power-form").addEventListener("submit", async (event) =
     document.getElementById("power-summary").textContent = `${data.total_wh.toFixed(2)} Wh in the selected interval`;
     drawChart(
       "power-chart",
-      data.points.map((point) => point.power_watts),
-      data.points.map((point) => new Date(point.timestamp * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })),
-      "#176b55",
+      data.points.map((point) => ({
+        x: point.timestamp,
+        label: hourLabel(point.timestamp),
+        value: point.power_watts,
+      })),
+      {
+        color: "#176b55",
+        unit: "W",
+        decimals: 2,
+        xTickInterval: 60 * 60,
+        xTickFormatter: hourLabel,
+      },
     );
   } catch (error) {
     document.getElementById("error").textContent = error.message;
@@ -99,9 +317,12 @@ document.getElementById("consumption-form").addEventListener("submit", async (ev
     document.getElementById("consumption-summary").textContent = `${data.total_kwh.toFixed(3)} kWh total`;
     drawChart(
       "consumption-chart",
-      data.points.map((point) => point.consumption_kwh),
-      data.points.map((point) => point.day.slice(5)),
-      "#315b9d",
+      data.points.map((point) => ({
+        x: new Date(`${point.day}T00:00:00`).getTime(),
+        label: new Date(`${point.day}T00:00:00`).toLocaleDateString([], { day: "2-digit", month: "2-digit" }),
+        value: point.consumption_kwh,
+      })),
+      { color: "#315b9d", unit: "kWh", decimals: 3 },
     );
   } catch (error) {
     document.getElementById("error").textContent = error.message;
