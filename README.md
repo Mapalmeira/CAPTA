@@ -6,26 +6,26 @@ This project is a complete system for measuring, sending, storing, and visualizi
 
 The system is divided into three main parts:
 
-1. **Hardware and Measurement**: includes the circuit connected to the ESP32 and the measurement logic.
-2. **Data Transmission**: embedded firmware on the ESP32 responsible for periodically sending the measurements.
+1. **Measurement and Calibration**: includes the current-sensing circuit, ADS1115 converter, and calibration utilities.
+2. **ESP32 Firmware**: measures current and periodically sends the readings.
 3. **Reception and Visualization**: a Python backend that validates structured requests, stores daily CSV files, and serves a small web dashboard.
 
 ## Components Used
 
 - **ESP32**: the main microcontroller.
 - **SCT-013-000 Sensor**: a current transformer for AC current measurement.
+- **ADS1115**: an external 16-bit ADC used to digitize the conditioned sensor signal over I2C.
 - **Electronic components**: one 10μF capacitor, one 75 Ω resistor, two 10kΩ resistors.
-- **microSD card (and external module)** (optional): for local data storage and configuration files.
 
 ## General Operation
 
 ### Measurement
 
-The ESP32 reads electrical current using the SCT-013-000 sensor, following recommendations from the OpenEnergyMonitor project. Measurement is based on the root mean square (RMS) of the current, assumes a fixed voltage value (such as 110V or 220V), and presumes current and voltage are in phase — which is usually valid for typical residential environments.
+The SCT-013-000 signal is conditioned and read through the ADS1115. The firmware calculates RMS current, assumes a fixed voltage value such as 110 V or 220 V, and presumes current and voltage are in phase.
 
 ### Data Transmission
 
-Measurements are sent as structured JSON through authenticated POST requests to the FastAPI backend.
+Measurements are sent as structured JSON through authenticated HTTP or HTTPS POST requests to the FastAPI backend.
 
 Small samples are sent periodically throughout the day. This setup is ideal for real-time monitoring and continuous tracking in areas with internet access.
 
@@ -43,23 +43,24 @@ The backend validates each request and stores measurements in one CSV file per d
 The backend serves a plain HTML and JavaScript dashboard that allows:
 
 - Viewing instantaneous power over a day.
-- Viewing daily consumption (kWh) for the past 30 days.
+- Viewing daily consumption (kWh) from a selected initial date and number of days.
 - Filtering by specific time intervals (e.g., only between 9 AM and 6 PM).
 - Exporting each day as CSV.
 
 ## Important Notes
 
-- The system currently sends only `[timestamp, current]` pairs, but the codebase is structured to easily allow expansion for other types of measurements.
-- Accuracy is acceptable for residential environments, but technical limitations exist (see the hardware README).
+- Each measurement currently contains `timestamp` and `current_amps` fields.
+- Accuracy is acceptable for residential environments, but technical limitations are described in the calibration README.
 
 ## Next Steps
 
 Access the specific READMEs for detailed information:
 
-- [`hardware/`](./docs/hardware/README.md): sensors, modules, and measurement logic.
-- [`data-transmission/`](./docs/data-transmission/README.md): ESP32 firmware logic and data transmission.
+- [`calibration/`](./calibration/README.md): circuit notes and calibration procedure.
+- [`firmware/`](./firmware/README.md): ESP32 firmware configuration and data transmission.
 - [`backend/`](./docs/backend/README.md): FastAPI API, CSV storage, dashboard, and Podman instructions.
 
 ## References
 
 - [OpenEnergyMonitor Docs](https://docs.openenergymonitor.org/electricity-monitoring/index.html)
+- [Adafruit ADS1115 Guide](https://learn.adafruit.com/adafruit-4-channel-adc-breakouts/arduino-code)
