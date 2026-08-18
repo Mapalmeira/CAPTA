@@ -125,8 +125,8 @@ Correct Drive structure is essential for proper graph generation.
 Access the specific READMEs for detailed information:
 
 - [`hardware/`](../hardware/README.md): sensors, modules, and measurement logic.
-- [`envio/`](../envio/README.md): ESP32 firmware logic and data transmission.
-- [`servidor/`](../servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
+- [`data-transmission/`](../data-transmission/README.md): ESP32 firmware logic and data transmission.
+- [`server/`](../server/README.md): Apps Script, Drive storage, and visualization spreadsheets.
 
 ---
 

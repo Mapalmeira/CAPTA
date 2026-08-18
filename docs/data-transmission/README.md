@@ -34,9 +34,9 @@ The system automatically adapts its operation:
 
 A physical button allows simple interactions (such as sending a shutdown command), and an integrated LED indicates the current operation mode:
 
-- LED blinking at 1 Hz → Normal sending.
-- LED blinking at 0.5 Hz → Connection issue detected.
-- LED blinking at 2 Hz → Pending transmission.
+- LED blinking at 1 Hz -> Normal sending.
+- LED blinking at 0.5 Hz -> Connection issue detected.
+- LED blinking at 2 Hz -> Pending transmission.
 
 ---
 
@@ -56,7 +56,7 @@ A physical button allows simple interactions (such as sending a shutdown command
 Before using the system, configure the `envio.ino` file located in `envio/`:
 
 - **Wi-Fi Credentials**: set `SSID` and `PASSWORD`.
-- **Web App URL**: set `ENDERECO_APPSCRIPT`, as obtained in [`servidor/`](../servidor/README.md).
+- **Web App URL**: set `ENDERECO_APPSCRIPT`, as described in [`server/`](../server/README.md).
 - **Authentication Token**: set the `TOKEN` value, which must be identical on both the ESP32 and the web application to ensure secure and authorized communication.
 
 You can also configure:
@@ -91,8 +91,8 @@ These values should be obtained through the calibration procedure described in [
 Access the specific READMEs for detailed information:
 
 - [`hardware/`](../hardware/README.md): sensors, modules, and measurement logic.
-- [`envio/`](../envio/README.md): ESP32 firmware logic and data transmission.
-- [`servidor/`](../servidor/README.md): Apps Script, Drive storage, and visualization spreadsheets.
+- [`data-transmission/`](../data-transmission/README.md): ESP32 firmware logic and data transmission.
+- [`server/`](../server/README.md): Apps Script, Drive storage, and visualization spreadsheets.
 
 ---
 
