@@ -49,4 +49,4 @@ Optional settings in `firmware.ino` control periodic restart, batch size, measur
 3. Compile and upload the firmware.
 4. Use the Serial Monitor at 115200 baud to follow its status.
 
-See the [backend documentation](../docs/backend/README.md) for API and deployment instructions.
+See the [backend documentation](../backend/README.md) for API and deployment instructions.

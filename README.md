@@ -58,7 +58,7 @@ Access the specific READMEs for detailed information:
 
 - [`calibration/`](./calibration/README.md): circuit notes and calibration procedure.
 - [`firmware/`](./firmware/README.md): ESP32 firmware configuration and data transmission.
-- [`backend/`](./docs/backend/README.md): FastAPI API, CSV storage, dashboard, and Podman instructions.
+- [`backend/`](./backend/README.md): FastAPI API, CSV storage, dashboard, and Podman instructions.
 
 ## References
 

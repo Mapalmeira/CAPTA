@@ -43,7 +43,7 @@ Data is written to `backend/data/`. Daily files follow the operating system's ti
 
 ## Podman
 
-Build the image:
+Run the following commands from the repository root. Build the image:
 
 ```bash
 podman build -t capta-backend -f backend/Containerfile backend
