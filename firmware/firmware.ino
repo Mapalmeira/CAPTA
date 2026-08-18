@@ -1,4 +1,5 @@
 // Header includes
+#include "secrets.h"
 #include "device/DeviceController.h"
 #include "meter/Meter.h"
 #include "device/physical-interface/PhysicalInterface.h"
@@ -17,10 +18,7 @@
 #include "device/connection/Connection.cpp"
 
 // Device settings
-constexpr const char* SSID = "";
-constexpr const char* PASSWORD = "";
 constexpr const char* BACKEND_URL = "";
-constexpr const char* TOKEN = "";
 constexpr const char* TLS_CA_CERTIFICATE = ""; // Required only when BACKEND_URL uses https://.
 constexpr bool ENABLE_LOGS = true;  // Reserved for a future implementation.
 constexpr bool PERIODIC_RESTART = true;
@@ -43,10 +41,10 @@ auto measurementFunction = []() {
 };
 
 DeviceController deviceController(
-    SSID,
-    PASSWORD,
+    WIFI_SSID,
+    WIFI_PASSWORD,
     BACKEND_URL,
-    TOKEN,
+    AUTH_TOKEN,
     TLS_CA_CERTIFICATE,
     measurementFunction,
     DECIMAL_PLACES // Decimal places for the timestamp and current. -1 means integer.
