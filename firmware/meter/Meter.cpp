@@ -134,5 +134,5 @@ double Meter::measureRawCurrent() {
 
 double Meter::measureCorrectedCurrent() {
     double rmsCurrent = measureRawCurrent();
-    return (rmsCurrent - interceptCoefficient) * scaleCoefficient;
+    return rmsCurrent * scaleCoefficient + interceptCoefficient;
 }
