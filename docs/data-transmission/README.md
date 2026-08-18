@@ -8,8 +8,6 @@ The system is divided into three main layers:
 - **Transmission Management**: organization of measurements and HTTPS POST transmission.
 - **Operation Management**: control of operating modes, logs, and physical interface.
 
----
-
 ## Overview of Operation
 
 ### Measurement
@@ -37,8 +35,6 @@ A physical button allows simple interactions (such as sending a shutdown command
 - LED blinking at 1 Hz -> Normal sending.
 - LED blinking at 0.5 Hz -> Connection issue detected.
 - LED blinking at 2 Hz -> Pending transmission.
-
----
 
 ## Installation
 
@@ -77,14 +73,10 @@ For proper operation of the meter, you must also set:
 
 These values should be obtained through the calibration procedure described in [`hardware/`](../hardware/README.md).
 
----
-
 ## Notes
 
 - The system includes connection verification with the Web App and reschedules transmissions in case of failures.
-- The WiFiClientSecure library is used in insecure mode (`client.setInsecure()`), without certificate validation, because Google Drive's Apps Script uses dynamic certificates that are hard to validate at runtime.
-
----
+- The WiFiClientSecure library is used in insecure mode (`client.setInsecure()`), without certificate validation.
 
 ## Next Steps
 
@@ -93,8 +85,6 @@ Access the specific READMEs for detailed information:
 - [`hardware/`](../hardware/README.md): sensors, modules, and measurement logic.
 - [`data-transmission/`](../data-transmission/README.md): ESP32 firmware logic and data transmission.
 - [`server/`](../server/README.md): Apps Script, Drive storage, and visualization spreadsheets.
-
----
 
 ## References
 
