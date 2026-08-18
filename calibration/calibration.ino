@@ -107,7 +107,7 @@ void loop() {
   double rmsCurrent = (rmsVoltage / resistance) * transformerTurns;
 
   // Apply the linear correction.
-  rmsCurrent = (rmsCurrent - interceptCoefficient) * scaleCoefficient;
+  rmsCurrent = rmsCurrent * scaleCoefficient + interceptCoefficient;
 
   // Display the result.
   Serial.println(rmsCurrent, 5);
