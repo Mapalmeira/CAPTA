@@ -17,7 +17,23 @@ Measurement Meter::measure() {
         return {};
     }
 
-    float current = static_cast<float>(measureCorrectedCurrent());
+    double correctedCurrent = measureCorrectedCurrent();
+    if (!isfinite(correctedCurrent)) {
+        Serial.println("Meter: corrected current is not finite; measurement skipped.");
+        return {};
+    }
+
+    // RMS current cannot be negative. A negative calibration intercept can
+    // otherwise produce invalid values close to zero and trigger HTTP 422.
+    if (correctedCurrent < 0) {
+        Serial.println(
+            "Meter: corrected current " + String(correctedCurrent, 4) +
+            " A clamped to 0 A."
+        );
+        correctedCurrent = 0;
+    }
+
+    float current = static_cast<float>(correctedCurrent);
     return {timestamp, current};
 }
 

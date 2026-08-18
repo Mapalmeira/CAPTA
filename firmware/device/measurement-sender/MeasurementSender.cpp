@@ -97,6 +97,10 @@ bool MeasurementSender::checkBackendStatus() {
     return requester.verifyBackend();
 }
 
+void MeasurementSender::logBackendConfiguration() {
+    requester.logBackendConfiguration();
+}
+
 int MeasurementSender::getBufferSize() {
     return buffer.size();
 }

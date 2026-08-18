@@ -32,6 +32,7 @@ public:
     // Transmission
     String sendBatch(int rows);
     bool checkBackendStatus();
+    void logBackendConfiguration();
     int getBufferSize();
 };
 

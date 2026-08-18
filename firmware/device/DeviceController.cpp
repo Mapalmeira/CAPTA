@@ -22,7 +22,7 @@ void DeviceController::begin() {
 
     // Start Wi-Fi.
     connectWiFi();
-    logger.logMessage(connection.getStatusMessage());
+    measurementSender.logBackendConfiguration();
 
     // Start the physical interface.
     auto getModeFunction = [this]() { return this->getMode(); };
@@ -36,6 +36,7 @@ void DeviceController::begin() {
 // Connect to Wi-Fi.
 bool DeviceController::connectWiFi() {
     bool connected = connection.connectWiFi();
+    logger.logMessage(connection.getStatusMessage());
     if (connected) {
         connectionFailures = 0;
     } else {

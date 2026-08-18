@@ -6,6 +6,11 @@
 #include <HTTPClient.h>
 #include "device/logger/Logger.h"
 
+struct HttpResult {
+    int statusCode;
+    String responseBody;
+};
+
 class HttpRequester {
 private:
     String url;
@@ -14,19 +19,26 @@ private:
     bool useHttps;
     Logger& logger;
 
-    int performPost(const String& endpoint, const String& json);
-    int performGet(const String& endpoint);
+    HttpResult performPost(const String& endpoint, const String& json);
+    HttpResult performGet(const String& endpoint);
+    String getBackendHost() const;
+    int getBackendPort() const;
+    String getBackendIp() const;
+    String getRequestUrl(const String& endpoint) const;
+    void logRequest(const String& method, const String& endpoint, int payloadBytes = 0) const;
+    void logResponse(const String& method, const String& endpoint, const HttpResult& result) const;
 
     template <typename Client>
-    int executePost(Client& client, const String& endpoint, const String& json);
+    HttpResult executePost(Client& client, const String& endpoint, const String& json);
 
     template <typename Client>
-    int executeGet(Client& client, const String& endpoint);
+    HttpResult executeGet(Client& client, const String& endpoint);
 
 public:
     HttpRequester(Logger& logger, String url, String token, String tlsCaCertificate);
     bool sendMeasurements(const String& json);
     bool verifyBackend();
+    void logBackendConfiguration() const;
 };
 
 #endif
