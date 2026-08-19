@@ -30,6 +30,7 @@ Measurements are sent as structured JSON through authenticated HTTP or HTTPS POS
 Small samples are sent periodically throughout the day. This setup is ideal for real-time monitoring and continuous tracking in areas with internet access.
 
 The system features:
+
 - A measurement buffer to ensure reliability.
 - Automatic retransmission logic in case of failure.
 - Preventive reboots.
@@ -46,7 +47,6 @@ The backend serves a plain HTML and JavaScript dashboard that allows:
 - Viewing daily consumption (kWh) for the 30 days from a selected initial date.
 - Zooming and horizontally scrolling charts to inspect shorter periods.
 - Exporting each day as CSV.
-
 
 ## Next Steps
 
