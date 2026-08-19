@@ -80,8 +80,7 @@ button:disabled {
 }
 
 .chart-hint,
-.zoom-value,
-.chart-help {
+.zoom-value {
   color: #53606d;
   font-size: 0.82rem;
 }
@@ -103,11 +102,6 @@ button:disabled {
   color: #17212b;
 }
 
-.chart-help {
-  margin: 0.35rem 0 0;
-  text-align: right;
-}
-
 .chart-scroll {
   width: 100%;
   overflow-x: auto;
@@ -123,7 +117,7 @@ canvas {
   margin-top: 0.75rem;
   border-top: 1px solid #edf0f2;
   cursor: crosshair;
-  touch-action: pan-x pan-y;
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .summary {
@@ -157,7 +151,4 @@ canvas {
     justify-content: flex-start;
   }
 
-  .chart-help {
-    text-align: left;
-  }
 }

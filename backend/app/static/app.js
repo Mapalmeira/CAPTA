@@ -76,11 +76,7 @@ function dayLabel(day) {
 }
 
 function chartBaseWidth(state) {
-  const viewportWidth = Math.max(state.scrollContainer.clientWidth, 280);
-  const mobileWidth = Number(state.canvas.dataset.mobileWidth) || viewportWidth;
-  return window.matchMedia("(max-width: 640px)").matches
-    ? Math.max(viewportWidth, mobileWidth)
-    : viewportWidth;
+  return state.scrollContainer.clientWidth || 280;
 }
 
 function updateZoomControls(state) {
@@ -115,7 +111,7 @@ function renderChart(state) {
   const { canvas, points, options } = state;
   const context = canvas.getContext("2d");
   const ratio = window.devicePixelRatio || 1;
-  const width = Math.max(canvas.clientWidth, 280);
+  const width = Math.max(canvas.clientWidth, 1);
   const height = 340;
   const margin = { top: 28, right: 22, bottom: 48, left: 66 };
   const chartWidth = width - margin.left - margin.right;
@@ -322,14 +318,6 @@ function drawChart(canvasId, points, options) {
         renderChart(state);
       }
     });
-
-    canvas.addEventListener("wheel", (event) => {
-      if (!event.ctrlKey && !event.metaKey) return;
-      event.preventDefault();
-      const scrollRectangle = scrollContainer.getBoundingClientRect();
-      const focusX = event.clientX - scrollRectangle.left;
-      setChartZoom(state, state.zoom * (event.deltaY < 0 ? 1.25 : 0.8), focusX);
-    }, { passive: false });
 
     toolbar.addEventListener("click", (event) => {
       const action = event.target.closest("[data-zoom]")?.dataset.zoom;
