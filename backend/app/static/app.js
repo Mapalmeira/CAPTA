@@ -87,10 +87,19 @@ function updateZoomControls(state) {
   state.toolbar.querySelector('[data-zoom="reset"]').disabled = state.zoom === 1;
 }
 
+function scheduleChartRender(state) {
+  if (state.renderFrame !== null) return;
+
+  state.renderFrame = window.requestAnimationFrame(() => {
+    state.renderFrame = null;
+    renderChart(state);
+  });
+}
+
 function resizeChart(state) {
   state.canvas.style.width = `${Math.round(chartBaseWidth(state) * state.zoom)}px`;
   updateZoomControls(state);
-  renderChart(state);
+  scheduleChartRender(state);
 }
 
 function setChartZoom(state, nextZoom, focusX = state.scrollContainer.clientWidth / 2) {
@@ -104,7 +113,26 @@ function setChartZoom(state, nextZoom, focusX = state.scrollContainer.clientWidt
   const widthRatio = state.canvas.clientWidth / oldWidth;
   state.scrollContainer.scrollLeft = contentFocus * widthRatio - focusX;
   updateZoomControls(state);
-  renderChart(state);
+  scheduleChartRender(state);
+}
+
+function touchDistance(touches) {
+  return Math.hypot(
+    touches[0].clientX - touches[1].clientX,
+    touches[0].clientY - touches[1].clientY,
+  );
+}
+
+function touchFocusX(state, touches) {
+  const rectangle = state.scrollContainer.getBoundingClientRect();
+  return (touches[0].clientX + touches[1].clientX) / 2 - rectangle.left;
+}
+
+function startPinch(state, touches) {
+  state.pinch = {
+    distance: Math.max(touchDistance(touches), 1),
+    zoom: state.zoom,
+  };
 }
 
 function renderChart(state) {
@@ -291,6 +319,8 @@ function drawChart(canvasId, points, options) {
       bounds: null,
       hoverIndex: null,
       zoom: 1,
+      pinch: null,
+      renderFrame: null,
     };
     chartStates.set(canvasId, state);
 
@@ -309,15 +339,35 @@ function drawChart(canvasId, points, options) {
         : null;
       if (nextIndex !== state.hoverIndex) {
         state.hoverIndex = nextIndex;
-        renderChart(state);
+        scheduleChartRender(state);
       }
     });
     canvas.addEventListener("pointerleave", () => {
       if (state.hoverIndex !== null) {
         state.hoverIndex = null;
-        renderChart(state);
+        scheduleChartRender(state);
       }
     });
+
+    canvas.addEventListener("touchstart", (event) => {
+      if (event.touches.length !== 2) return;
+      event.preventDefault();
+      startPinch(state, event.touches);
+    }, { passive: false });
+
+    canvas.addEventListener("touchmove", (event) => {
+      if (event.touches.length !== 2) return;
+      event.preventDefault();
+      if (!state.pinch) startPinch(state, event.touches);
+      const nextZoom = state.pinch.zoom * touchDistance(event.touches) / state.pinch.distance;
+      setChartZoom(state, nextZoom, touchFocusX(state, event.touches));
+    }, { passive: false });
+
+    const endPinch = (event) => {
+      if (event.touches.length < 2) state.pinch = null;
+    };
+    canvas.addEventListener("touchend", endPinch);
+    canvas.addEventListener("touchcancel", endPinch);
 
     toolbar.addEventListener("click", (event) => {
       const action = event.target.closest("[data-zoom]")?.dataset.zoom;
@@ -335,6 +385,7 @@ function drawChart(canvasId, points, options) {
   state.points = points;
   state.options = options;
   state.hoverIndex = null;
+  state.scrollContainer.scrollLeft = 0;
   resizeChart(state);
 }
 

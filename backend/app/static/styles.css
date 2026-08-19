@@ -117,7 +117,7 @@ canvas {
   margin-top: 0.75rem;
   border-top: 1px solid #edf0f2;
   cursor: crosshair;
-  touch-action: pan-x pan-y pinch-zoom;
+  touch-action: pan-x pan-y;
 }
 
 .summary {
