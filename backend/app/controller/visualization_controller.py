@@ -19,15 +19,9 @@ router = APIRouter(
 def instantaneous_power(
     day: Annotated[date, Query(alias="date")],
     voltage: Annotated[float, Query(gt=0)],
-    start_hour: Annotated[int, Query(ge=0, le=23)] = 0,
-    end_hour: Annotated[int, Query(ge=1, le=24)] = 24,
 ) -> InstantaneousPowerResponse:
-    if start_hour >= end_hour:
-        raise HTTPException(status_code=422, detail="start_hour must be less than end_hour")
     try:
-        return visualization_service.instantaneous_power(
-            day, start_hour, end_hour, voltage
-        )
+        return visualization_service.instantaneous_power(day, voltage)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
@@ -36,9 +30,8 @@ def instantaneous_power(
 def daily_consumption(
     start_day: Annotated[date, Query(alias="start_date")],
     voltage: Annotated[float, Query(gt=0)],
-    days: Annotated[int, Query(ge=1, le=90)] = 30,
 ) -> DailyConsumptionResponse:
     try:
-        return visualization_service.daily_consumption(start_day, voltage, days)
+        return visualization_service.daily_consumption(start_day, voltage)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error

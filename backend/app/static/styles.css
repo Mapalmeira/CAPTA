@@ -66,12 +66,64 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.chart-toolbar {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 0.8rem;
+}
+
+.chart-hint,
+.zoom-value,
+.chart-help {
+  color: #53606d;
+  font-size: 0.82rem;
+}
+
+.zoom-value {
+  min-width: 3.2rem;
+  text-align: center;
+}
+
+.chart-control {
+  min-width: 2.4rem;
+  min-height: 2.1rem;
+  padding: 0.25rem 0.55rem;
+}
+
+.chart-control.reset {
+  border-color: #aeb8c2;
+  background: white;
+  color: #17212b;
+}
+
+.chart-help {
+  margin: 0.35rem 0 0;
+  text-align: right;
+}
+
+.chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
 canvas {
+  display: block;
   width: 100%;
   height: 340px;
   margin-top: 0.75rem;
   border-top: 1px solid #edf0f2;
   cursor: crosshair;
+  touch-action: pan-x pan-y;
 }
 
 .summary {
@@ -81,4 +133,31 @@ canvas {
 
 #error {
   color: #b42318;
+}
+
+@media (max-width: 640px) {
+  main {
+    width: min(100% - 1rem, 1100px);
+    margin: 0.5rem auto;
+  }
+
+  header,
+  section {
+    padding: 1rem;
+  }
+
+  form,
+  form label,
+  form input,
+  form button {
+    width: 100%;
+  }
+
+  .chart-toolbar {
+    justify-content: flex-start;
+  }
+
+  .chart-help {
+    text-align: left;
+  }
 }

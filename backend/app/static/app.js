@@ -1,4 +1,11 @@
-const today = new Date().toISOString().slice(0, 10);
+function dateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+const today = dateInputValue(new Date());
 for (const id of ["power-date", "consumption-date", "export-date"]) {
   document.getElementById(id).value = today;
 }
@@ -54,12 +61,54 @@ function xTickIndexes(pointCount, maximumTicks) {
   return [...indexes];
 }
 
-function hourLabel(timestamp) {
+function hourLabel(timestamp, timezone) {
   return new Intl.DateTimeFormat("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
+    timeZone: timezone,
   }).format(new Date(timestamp * 1000));
+}
+
+function dayLabel(day) {
+  const [, month, date] = day.split("-");
+  return `${date}/${month}`;
+}
+
+function chartBaseWidth(state) {
+  const viewportWidth = Math.max(state.scrollContainer.clientWidth, 280);
+  const mobileWidth = Number(state.canvas.dataset.mobileWidth) || viewportWidth;
+  return window.matchMedia("(max-width: 640px)").matches
+    ? Math.max(viewportWidth, mobileWidth)
+    : viewportWidth;
+}
+
+function updateZoomControls(state) {
+  if (!state.toolbar) return;
+  state.toolbar.querySelector(".zoom-value").value = `${Math.round(state.zoom * 100)}%`;
+  state.toolbar.querySelector('[data-zoom="out"]').disabled = state.zoom <= 1;
+  state.toolbar.querySelector('[data-zoom="in"]').disabled = state.zoom >= 4;
+  state.toolbar.querySelector('[data-zoom="reset"]').disabled = state.zoom === 1;
+}
+
+function resizeChart(state) {
+  state.canvas.style.width = `${Math.round(chartBaseWidth(state) * state.zoom)}px`;
+  updateZoomControls(state);
+  renderChart(state);
+}
+
+function setChartZoom(state, nextZoom, focusX = state.scrollContainer.clientWidth / 2) {
+  const zoom = Math.min(4, Math.max(1, nextZoom));
+  if (zoom === state.zoom) return;
+
+  const oldWidth = state.canvas.clientWidth || chartBaseWidth(state) * state.zoom;
+  const contentFocus = state.scrollContainer.scrollLeft + focusX;
+  state.zoom = zoom;
+  state.canvas.style.width = `${Math.round(chartBaseWidth(state) * state.zoom)}px`;
+  const widthRatio = state.canvas.clientWidth / oldWidth;
+  state.scrollContainer.scrollLeft = contentFocus * widthRatio - focusX;
+  updateZoomControls(state);
+  renderChart(state);
 }
 
 function renderChart(state) {
@@ -234,7 +283,19 @@ function drawChart(canvasId, points, options) {
   let state = chartStates.get(canvasId);
 
   if (!state) {
-    state = { canvas, points: [], options: {}, coordinates: [], bounds: null, hoverIndex: null };
+    const scrollContainer = canvas.closest(".chart-scroll");
+    const toolbar = document.querySelector(`[data-controls-for="${canvasId}"]`);
+    state = {
+      canvas,
+      scrollContainer,
+      toolbar,
+      points: [],
+      options: {},
+      coordinates: [],
+      bounds: null,
+      hoverIndex: null,
+      zoom: 1,
+    };
     chartStates.set(canvasId, state);
 
     canvas.addEventListener("pointermove", (event) => {
@@ -262,16 +323,31 @@ function drawChart(canvasId, points, options) {
       }
     });
 
+    canvas.addEventListener("wheel", (event) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const scrollRectangle = scrollContainer.getBoundingClientRect();
+      const focusX = event.clientX - scrollRectangle.left;
+      setChartZoom(state, state.zoom * (event.deltaY < 0 ? 1.25 : 0.8), focusX);
+    }, { passive: false });
+
+    toolbar.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-zoom]")?.dataset.zoom;
+      if (action === "in") setChartZoom(state, state.zoom * 1.5);
+      if (action === "out") setChartZoom(state, state.zoom / 1.5);
+      if (action === "reset") setChartZoom(state, 1);
+    });
+
     if (typeof ResizeObserver !== "undefined") {
-      state.resizeObserver = new ResizeObserver(() => renderChart(state));
-      state.resizeObserver.observe(canvas);
+      state.resizeObserver = new ResizeObserver(() => resizeChart(state));
+      state.resizeObserver.observe(scrollContainer);
     }
   }
 
   state.points = points;
   state.options = options;
   state.hoverIndex = null;
-  renderChart(state);
+  resizeChart(state);
 }
 
 document.getElementById("power-form").addEventListener("submit", async (event) => {
@@ -279,8 +355,6 @@ document.getElementById("power-form").addEventListener("submit", async (event) =
   try {
     const query = new URLSearchParams({
       date: document.getElementById("power-date").value,
-      start_hour: document.getElementById("start-hour").value,
-      end_hour: document.getElementById("end-hour").value,
       voltage: document.getElementById("power-voltage").value,
     });
     const data = await (await api(`/api/visualizations/instantaneous-power?${query}`)).json();
@@ -289,7 +363,7 @@ document.getElementById("power-form").addEventListener("submit", async (event) =
       "power-chart",
       data.points.map((point) => ({
         x: point.timestamp,
-        label: hourLabel(point.timestamp),
+        label: hourLabel(point.timestamp, data.timezone),
         value: point.power_watts,
       })),
       {
@@ -297,7 +371,7 @@ document.getElementById("power-form").addEventListener("submit", async (event) =
         unit: "W",
         decimals: 2,
         xTickInterval: 60 * 60,
-        xTickFormatter: hourLabel,
+        xTickFormatter: (timestamp) => hourLabel(timestamp, data.timezone),
       },
     );
   } catch (error) {
@@ -311,15 +385,14 @@ document.getElementById("consumption-form").addEventListener("submit", async (ev
     const query = new URLSearchParams({
       start_date: document.getElementById("consumption-date").value,
       voltage: document.getElementById("consumption-voltage").value,
-      days: document.getElementById("days").value,
     });
     const data = await (await api(`/api/visualizations/daily-consumption?${query}`)).json();
     document.getElementById("consumption-summary").textContent = `${data.total_kwh.toFixed(3)} kWh total`;
     drawChart(
       "consumption-chart",
       data.points.map((point) => ({
-        x: new Date(`${point.day}T00:00:00`).getTime(),
-        label: new Date(`${point.day}T00:00:00`).toLocaleDateString([], { day: "2-digit", month: "2-digit" }),
+        x: point.day,
+        label: dayLabel(point.day),
         value: point.consumption_kwh,
       })),
       { color: "#315b9d", unit: "kWh", decimals: 3 },

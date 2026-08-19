@@ -5,6 +5,7 @@ from pathlib import Path
 from threading import Lock
 
 from app.models import Measurement
+from app.time_config import TIME_ZONE
 
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -19,7 +20,7 @@ class CsvRepository:
     def append(self, measurements: list[Measurement]) -> tuple[int, list[str]]:
         measurements_by_day: dict[date, list[Measurement]] = defaultdict(list)
         for measurement in measurements:
-            day = datetime.fromtimestamp(measurement.timestamp).date()
+            day = datetime.fromtimestamp(measurement.timestamp, TIME_ZONE).date()
             measurements_by_day[day].append(measurement)
 
         stored = 0

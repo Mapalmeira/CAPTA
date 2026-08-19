@@ -27,6 +27,7 @@ class PowerPoint(BaseModel):
 class InstantaneousPowerResponse(BaseModel):
     points: list[PowerPoint]
     total_wh: float
+    timezone: str
 
 
 class DailyConsumptionPoint(BaseModel):

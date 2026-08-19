@@ -43,14 +43,10 @@ The backend validates each request and stores measurements in one CSV file per d
 The backend serves a plain HTML and JavaScript dashboard that allows:
 
 - Viewing instantaneous power over a day.
-- Viewing daily consumption (kWh) from a selected initial date and number of days.
-- Filtering by specific time intervals (e.g., only between 9 AM and 6 PM).
+- Viewing daily consumption (kWh) for the 30 days from a selected initial date.
+- Zooming and horizontally scrolling charts to inspect shorter periods.
 - Exporting each day as CSV.
 
-## Important Notes
-
-- Each measurement currently contains `timestamp` and `current_amps` fields.
-- Accuracy is acceptable for residential environments, but technical limitations are described in the calibration README.
 
 ## Next Steps
 

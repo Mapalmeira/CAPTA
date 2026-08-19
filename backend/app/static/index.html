@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,13 +21,21 @@
         <h2>Instantaneous power</h2>
         <form id="power-form">
           <label>Date <input id="power-date" type="date" required></label>
-          <label>Start hour <input id="start-hour" type="number" min="0" max="23" value="0" required></label>
-          <label>End hour <input id="end-hour" type="number" min="1" max="24" value="24" required></label>
           <label>Voltage <input id="power-voltage" type="number" min="1" value="220" required></label>
           <button type="submit">Load power</button>
         </form>
         <p id="power-summary" class="summary"></p>
-        <canvas id="power-chart" height="340"></canvas>
+        <div class="chart-toolbar" data-controls-for="power-chart" aria-label="Controles de zoom do gráfico de potência">
+          <span class="chart-hint">Zoom</span>
+          <button type="button" class="chart-control" data-zoom="out" aria-label="Diminuir zoom">−</button>
+          <output class="zoom-value" aria-live="polite">100%</output>
+          <button type="button" class="chart-control" data-zoom="in" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="chart-control reset" data-zoom="reset">Redefinir</button>
+        </div>
+        <p class="chart-help">Use o zoom para detalhar um período. No celular, deslize o gráfico para os lados.</p>
+        <div class="chart-scroll" tabindex="0" aria-label="Gráfico de potência com rolagem horizontal">
+          <canvas id="power-chart" height="340" data-mobile-width="960"></canvas>
+        </div>
       </section>
 
       <section>
@@ -35,11 +43,20 @@
         <form id="consumption-form">
           <label>Start date <input id="consumption-date" type="date" required></label>
           <label>Voltage <input id="consumption-voltage" type="number" min="1" value="220" required></label>
-          <label>Days <input id="days" type="number" min="1" max="90" value="30" required></label>
           <button type="submit">Load consumption</button>
         </form>
         <p id="consumption-summary" class="summary"></p>
-        <canvas id="consumption-chart" height="340"></canvas>
+        <div class="chart-toolbar" data-controls-for="consumption-chart" aria-label="Controles de zoom do gráfico de consumo">
+          <span class="chart-hint">Zoom</span>
+          <button type="button" class="chart-control" data-zoom="out" aria-label="Diminuir zoom">−</button>
+          <output class="zoom-value" aria-live="polite">100%</output>
+          <button type="button" class="chart-control" data-zoom="in" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="chart-control reset" data-zoom="reset">Redefinir</button>
+        </div>
+        <p class="chart-help">Período fixo de 30 dias. No celular, deslize o gráfico para os lados.</p>
+        <div class="chart-scroll" tabindex="0" aria-label="Gráfico de consumo com rolagem horizontal">
+          <canvas id="consumption-chart" height="340" data-mobile-width="900"></canvas>
+        </div>
       </section>
 
       <section>

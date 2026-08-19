@@ -8,17 +8,19 @@ from app.models import (
     PowerPoint,
 )
 from app.repository.csv_repository import csv_repository
+from app.time_config import TIME_ZONE, TIME_ZONE_NAME
+
+
+DAILY_CONSUMPTION_DAYS = 30
 
 
 class VisualizationService:
     def instantaneous_power(
         self,
         day: date,
-        start_hour: int,
-        end_hour: int,
         voltage: float,
     ) -> InstantaneousPowerResponse:
-        start_timestamp, end_timestamp = self._day_interval(day, start_hour, end_hour)
+        start_timestamp, end_timestamp = self._day_interval(day)
         measurements = self._select_interval(
             csv_repository.read(day), start_timestamp, end_timestamp
         )
@@ -32,23 +34,23 @@ class VisualizationService:
         return InstantaneousPowerResponse(
             points=points,
             total_wh=self._watt_hours(points),
+            timezone=TIME_ZONE_NAME,
         )
 
     def daily_consumption(
         self,
         start_day: date,
         voltage: float,
-        days: int,
     ) -> DailyConsumptionResponse:
         points: list[DailyConsumptionPoint] = []
 
-        for offset in range(days):
+        for offset in range(DAILY_CONSUMPTION_DAYS):
             current_day = start_day + timedelta(days=offset)
             measurements = csv_repository.read(current_day)
             if not measurements:
                 continue
 
-            start_timestamp, end_timestamp = self._day_interval(current_day, 0, 24)
+            start_timestamp, end_timestamp = self._day_interval(current_day)
             selected = self._select_interval(
                 measurements, start_timestamp, end_timestamp
             )
@@ -103,9 +105,9 @@ class VisualizationService:
             )
         return selected
 
-    def _day_interval(self, day: date, start_hour: int, end_hour: int) -> tuple[int, int]:
-        start = datetime.combine(day, time()) + timedelta(hours=start_hour)
-        end = datetime.combine(day, time()) + timedelta(hours=end_hour)
+    def _day_interval(self, day: date) -> tuple[int, int]:
+        start = datetime.combine(day, time(), tzinfo=TIME_ZONE)
+        end = datetime.combine(day + timedelta(days=1), time(), tzinfo=TIME_ZONE)
         return int(start.timestamp()), int(end.timestamp()) - 1
 
     def _watt_hours(self, points: list[PowerPoint]) -> float:

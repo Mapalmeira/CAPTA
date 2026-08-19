@@ -24,8 +24,8 @@ Authorization: Bearer <token>
 Other endpoints:
 
 - `GET /api/measurements/{date}/export`
-- `GET /api/visualizations/instantaneous-power`
-- `GET /api/visualizations/daily-consumption`
+- `GET /api/visualizations/instantaneous-power` (the complete selected day)
+- `GET /api/visualizations/daily-consumption` (a fixed 30-day period)
 - `GET /` for the dashboard
 
 Open `/docs` for the generated API documentation.
@@ -36,10 +36,13 @@ Set the required environment variable and start Uvicorn from this directory:
 
 ```bash
 export CAPTA_AUTH_TOKEN="replace-with-your-token"
+export CAPTA_TIMEZONE="replace-with-your-timezone"
 uvicorn app.main:app --reload
 ```
 
-Data is written to `backend/data/`. Daily files follow the operating system's timezone.
+`CAPTA_TIMEZONE` is optional and defaults to `UTC`. It accepts an [IANA timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+Data is written to `backend/data/`.
 
 ## Podman
 
@@ -61,6 +64,7 @@ Run the container and expose the secret as the required environment variable:
 podman run --rm \
   --name capta-backend \
   -p 8000:8000 \
+  -e CAPTA_TIMEZONE=<timezone> \
   --secret capta_auth_token,type=env,target=CAPTA_AUTH_TOKEN \
   -v capta-data:/app/data \
   capta-backend
