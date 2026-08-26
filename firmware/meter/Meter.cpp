@@ -1,14 +1,7 @@
 #include "Meter.h"
 
-Meter::Meter() {}
-
 void Meter::setResistance(double value) { resistance = value; }
 void Meter::setTransformerTurns(double turns) { transformerTurns = turns; }
-void Meter::setVoltageOffset(double offset) { voltageOffset = offset; }
-void Meter::setCorrectionCoefficients(double scale, double intercept) {
-    scaleCoefficient = scale;
-    interceptCoefficient = intercept;
-}
 
 Measurement Meter::measure() {
     int timestamp = getEpoch();
@@ -17,23 +10,13 @@ Measurement Meter::measure() {
         return {};
     }
 
-    double correctedCurrent = measureCorrectedCurrent();
-    if (!isfinite(correctedCurrent)) {
-        Serial.println("Meter: corrected current is not finite; measurement skipped.");
+    double currentAmps = measureCurrent();
+    if (!isfinite(currentAmps)) {
+        Serial.println("Meter: current is not finite; measurement skipped.");
         return {};
     }
 
-    // RMS current cannot be negative. A negative calibration intercept can
-    // otherwise produce invalid values close to zero and trigger HTTP 422.
-    if (correctedCurrent < 0) {
-        Serial.println(
-            "Meter: corrected current " + String(correctedCurrent, 4) +
-            " A clamped to 0 A."
-        );
-        correctedCurrent = 0;
-    }
-
-    float current = static_cast<float>(correctedCurrent);
+    float current = static_cast<float>(currentAmps);
     return {timestamp, current};
 }
 
@@ -96,18 +79,30 @@ double Meter::calculateStandardDeviation(double *data, int size, double mean) {
     return sqrt(sum / size);
 }
 
-int Meter::filterData(double *data, int size, double offset, double *filteredData) {
+int Meter::filterAndCenterData(double *data, int size) {
+    if (size <= 0) return 0;
+
     double mean = calculateMean(data, size);
     double standardDeviation = calculateStandardDeviation(data, size, mean);
 
     int validCount = 0;
+    double filteredSum = 0;
     for (int i = 0; i < size; i++) {
-      if (abs(data[i] - mean) < 2 * standardDeviation) {
-        double voltage = data[i] - offset;
-        filteredData[validCount] = voltage;
-        validCount++;
-      }
+        if (standardDeviation == 0 ||
+            fabs(data[i] - mean) < 2 * standardDeviation) {
+            filteredSum += data[i];
+            data[validCount] = data[i];
+            validCount++;
+        }
     }
+
+    if (validCount == 0) return 0;
+
+    double filteredMean = filteredSum / validCount;
+    for (int i = 0; i < validCount; i++) {
+        data[i] -= filteredMean;
+    }
+
     return validCount;
 }
 
@@ -132,28 +127,19 @@ void Meter::collectReadings(double *buffer, int size) {
     }
 }
 
-double Meter::measureRawCurrent() {
+double Meter::measureCurrent() {
     double *readings = (double *)malloc(sampleCount * sizeof(double));
-    double *filteredData = (double *)malloc(sampleCount * sizeof(double));
 
-    if (!readings || !filteredData) {
+    if (!readings) {
         Serial.println("Meter: memory allocation error.");
-        if (readings) free(readings);
-        if (filteredData) free(filteredData);
         return 0;
     }
 
     collectReadings(readings, sampleCount);
-    int validCount = filterData(readings, sampleCount, voltageOffset, filteredData);
-    double rmsVoltage = calculateRMS(filteredData, validCount);
+    int validCount = filterAndCenterData(readings, sampleCount);
+    double rmsVoltage = calculateRMS(readings, validCount);
 
     free(readings);
-    free(filteredData);
 
     return (rmsVoltage / resistance) * transformerTurns;
-}
-
-double Meter::measureCorrectedCurrent() {
-    double rmsCurrent = measureRawCurrent();
-    return rmsCurrent * scaleCoefficient + interceptCoefficient;
 }

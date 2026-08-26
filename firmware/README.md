@@ -23,7 +23,7 @@ For ADS1115 wiring and library installation, use the [Adafruit ADS1115 Arduino g
 2. Set `WIFI_SSID`, `WIFI_PASSWORD`, and `AUTH_TOKEN` in `secrets.h`. This file is ignored by Git.
 3. Set `BACKEND_URL` in `firmware.ino`. The URL scheme selects HTTP (`http://`) or HTTPS (`https://`).
 4. When using HTTPS, set `TLS_CA_CERTIFICATE` in `firmware.ino` to a CA certificate trusted by the backend certificate chain. Leave it empty for HTTP.
-5. Set the meter values in `firmware.ino` using the results from the [calibration procedure](../calibration/README.md).
+5. Set `BURDEN_RESISTANCE` to the measured burden-resistor value and `TRANSFORMER_TURNS` to the current-transformer ratio. Use the [measurement verification procedure](../verification/README.md) to check them against a clamp meter.
 
 The firmware token must match the backend's `CAPTA_AUTH_TOKEN`.
 

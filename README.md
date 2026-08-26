@@ -6,7 +6,7 @@ This project is a complete system for measuring, sending, storing, and visualizi
 
 The system is divided into three main parts:
 
-1. **Measurement and Calibration**: includes the current-sensing circuit, ADS1115 converter, and calibration utilities.
+1. **Measurement and Verification**: includes the current-sensing circuit, ADS1115 converter, and a verification sketch.
 2. **ESP32 Firmware**: measures current and periodically sends the readings.
 3. **Reception and Visualization**: a Python backend that validates structured requests, stores daily CSV files, and serves a small web dashboard.
 
@@ -21,7 +21,7 @@ The system is divided into three main parts:
 
 ### Measurement
 
-The SCT-013-000 signal is conditioned and read through the ADS1115. The firmware calculates RMS current, assumes a fixed voltage value such as 110 V or 220 V, and presumes current and voltage are in phase.
+The SCT-013-000 signal is conditioned and read through the ADS1115. For every sample window, the firmware rejects outliers, estimates the voltage bias from the accepted samples, and calculates RMS current from the centered signal. Power calculations assume a fixed mains voltage such as 110 V or 220 V and presume current and voltage are in phase.
 
 ### Data Transmission
 
@@ -52,7 +52,7 @@ The backend serves a plain HTML and JavaScript dashboard that allows:
 
 Access the specific READMEs for detailed information:
 
-- [`calibration/`](./calibration/README.md): circuit notes and calibration procedure.
+- [`verification/`](./verification/README.md): circuit notes and measurement verification procedure.
 - [`firmware/`](./firmware/README.md): ESP32 firmware configuration and data transmission.
 - [`backend/`](./backend/README.md): FastAPI API, CSV storage, dashboard, and Podman instructions.
 
