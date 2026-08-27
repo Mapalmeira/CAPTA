@@ -68,6 +68,9 @@ class VisualizationService:
                 )
             )
 
+        if not points:
+            raise ValueError("No measurements exist in the selected 30-day period")
+
         return DailyConsumptionResponse(
             points=points,
             total_kwh=sum(point.consumption_kwh for point in points),
