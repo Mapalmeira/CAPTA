@@ -30,9 +30,6 @@ const std::vector<int> DECIMAL_PLACES = {-1, 2};
 // Meter settings
 constexpr double BURDEN_RESISTANCE = 75;
 constexpr double TRANSFORMER_TURNS = 2000.0;
-constexpr double VOLTAGE_OFFSET = 1.65;
-constexpr double SCALE_COEFFICIENT = 1;
-constexpr double INTERCEPT_COEFFICIENT = -0;
 
 Meter meter;
 
@@ -58,8 +55,6 @@ void setup() {
     meter.beginI2C();
     meter.setResistance(BURDEN_RESISTANCE);
     meter.setTransformerTurns(TRANSFORMER_TURNS);
-    meter.setVoltageOffset(VOLTAGE_OFFSET);
-    meter.setCorrectionCoefficients(SCALE_COEFFICIENT, INTERCEPT_COEFFICIENT);
 
     // Optional system settings
     deviceController.setLogging(ENABLE_LOGS);

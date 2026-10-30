@@ -71,43 +71,24 @@ button:disabled {
   cursor: default;
 }
 
-.chart-toolbar {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 0.8rem;
-}
-
-.chart-hint,
-.zoom-value {
+.chart-hint {
+  margin: 0.8rem 0 0;
   color: #53606d;
   font-size: 0.82rem;
 }
 
-.zoom-value {
-  min-width: 3.2rem;
-  text-align: center;
-}
-
-.chart-control {
-  min-width: 2.4rem;
-  min-height: 2.1rem;
-  padding: 0.25rem 0.55rem;
-}
-
-.chart-control.reset {
-  border-color: #aeb8c2;
-  background: white;
+.chart-readout {
+  display: block;
+  min-height: 1.25rem;
+  margin-top: 0.35rem;
   color: #17212b;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .chart-scroll {
   width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scrollbar-gutter: stable;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
 }
 
 canvas {
@@ -117,7 +98,7 @@ canvas {
   margin-top: 0.75rem;
   border-top: 1px solid #edf0f2;
   cursor: crosshair;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
 }
 
 .summary {
@@ -125,7 +106,9 @@ canvas {
   font-weight: 600;
 }
 
-#error {
+.form-error {
+  min-height: 1.25rem;
+  margin: 0.6rem 0 0;
   color: #b42318;
 }
 
@@ -145,10 +128,6 @@ canvas {
   form input,
   form button {
     width: 100%;
-  }
-
-  .chart-toolbar {
-    justify-content: flex-start;
   }
 
 }

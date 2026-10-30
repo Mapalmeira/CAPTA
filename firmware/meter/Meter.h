@@ -3,7 +3,6 @@
 
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
-#include <WiFi.h>
 #include <time.h>
 #include <vector>
 #include <variant>
@@ -19,9 +18,6 @@ class Meter {
 
         double resistance;
         double transformerTurns;
-        double voltageOffset;
-        double scaleCoefficient;
-        double interceptCoefficient;
 
         bool ntpInitialized = false;
         bool hasTimeReference = false;
@@ -34,22 +30,17 @@ class Meter {
         double adcToVoltage(int reading);
         double calculateMean(double *data, int size);
         double calculateStandardDeviation(double *data, int size, double mean);
-        int filterData(double *data, int size, double offset, double *filteredData);
+        int filterAndCenterData(double *data, int size);
         double calculateRMS(double *data, int size);
 
-        double measureRawCurrent();
-        double measureCorrectedCurrent();
+        double measureCurrent();
 
     public:
-        Meter();
-
         void beginI2C();
         void setResistance(double value);
         void setTransformerTurns(double turns);
-        void setVoltageOffset(double offset);
-        void setCorrectionCoefficients(double scale, double intercept);
 
-        Measurement measure(); // Returns [timestamp, corrected current].
+        Measurement measure(); // Returns [timestamp, current].
 };
 
 #endif // METER_H
